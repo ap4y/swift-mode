@@ -211,64 +211,84 @@
       token
     ))
 
-(defconst swift-smie--lookback-max-lines -2
-  "Max number of lines 'looking-back' allowed to scan.
-In some cases we can't avoid reverse lookup and this operation can be slow.
-We try to constraint those lookups by reasonable number of lines.")
+(defvar swift-smie--case-exp-regexp
+  "\\(case.*?[^{}:=]+\\|default[[:space:]]*\\):")
+
+(defun swift-smie--case-signature-p ()
+  (save-excursion
+    (up-list 1) (backward-list 1)
+    (not (looking-back "enum.*" (line-beginning-position -1)))))
+
+(defun swift-smie--closure-signature-p ()
+    (let ((tok (smie-default-forward-token)))
+      (or (equal tok "in")
+          (and (equal tok "->")
+               (equal (smie-default-forward-token) "in")))))
 
 (defun swift-smie--forward-token ()
   (skip-chars-forward " \t")
   (cond
-   ((and (looking-at "\n\\|\/\/") (swift-smie--implicit-semi-p))
+   ((and (looking-at "\n\\|\/\/")
+         (swift-smie--implicit-semi-p))
     (if (eolp) (forward-char 1) (forward-comment 1))
-    ";")
+    (skip-chars-forward " \t")
+    (if (looking-at swift-smie--case-exp-regexp)
+        "case-;" ";"))
    (t
-    (forward-comment (point))
+    (forward-comment (point-max))
     (cond
-   ((looking-at "{") (forward-char 1) "{")
-   ((looking-at "}") (forward-char 1) "}")
+     ((and (looking-at "{")
+           (save-excursion (forward-comment (- 1)) (eq (char-before) ?:)))
+      (forward-char 1) "closure-{")
+     ((looking-at "{") (forward-char 1) "{")
 
-   ((looking-at ",") (forward-char 1) ",")
-   ((looking-at ":") (forward-char 1)
-    ;; look-back until "case", "default", ":", "{", ";"
-    (if (looking-back "\\(case[\n\t ][^:{;]+\\|default[\n\t ]*\\):")
-        "case-:"
-      ":"))
+     ((looking-at "}") (forward-char 1)
+      (if (save-excursion  (forward-comment 1)
+                           (looking-at ")")) "closure-}" "}"))
 
-   ((looking-at "->") (forward-char 2) "->")
+     ((and (looking-at "(")
+           (save-excursion (forward-list 1) (swift-smie--closure-signature-p)))
+      (forward-char 1) "closure-(")
+     ((and (looking-at ")")
+           (save-excursion (forward-char 1) (swift-smie--closure-signature-p)))
+      (forward-char 1) "closure-)")
 
-   ((looking-at "<") (forward-char 1)
-    (if (looking-at "[[:upper:]]") "<T" "<"))
+     ((looking-at "->") (forward-char 2) "->")
 
-   ((looking-at ">[?!]?")
-    (goto-char (match-end 0))
-    (if (looking-back "[[:space:]]>" 2 t) ">" "T>"))
+     ((looking-at ":") (forward-char 1)
+      (if (looking-back swift-smie--case-exp-regexp)
+          "case-:" ":"))
 
-   ((looking-at swift-smie--decl-specifier-regexp)
-    (goto-char (match-end 1)) "DECSPEC")
+     ((looking-at "<") (forward-char 1)
+      (if (looking-at "[[:upper:]]") "<T" "<"))
 
-   ((looking-at swift-smie--access-modifier-regexp)
-    (goto-char (match-end 0)) "ACCESSMOD")
+     ((looking-at ">[?!]?")
+      (goto-char (match-end 0))
+      (if (looking-back "[[:space:]]>" 2 t) ">" "T>"))
 
-   ((looking-at "\\<default\\>")
-    (goto-char (match-end 0)) "case")
+     ((looking-at "else[[:space:]]*if")
+      (goto-char (match-end 0)) "elseif")
 
-   ((looking-at "else if")
-    (goto-char (match-end 0)) "elseif")
+     (t (let ((tok (smie-default-forward-token)))
+          (cond
+           ((equal tok "case")
+            (if (swift-smie--case-signature-p)
+                "case" "ecase"))
 
-   (t (let ((tok (smie-default-forward-token)))
-        (cond
-         ((equal tok "case")
-          (if (looking-at "\\([\n\t ]\\|.\\)+?\\(where.*[,]\\|:\\)")
-              "case"
-            "ecase"))
-         ((equal tok "else")
-          (if (looking-back "\\(guard.*\\)" (line-beginning-position) t)
-              "elseguard"
-            "else"))
-         (t tok))))
-   ))
-   ))
+           ((equal tok "while")
+            (if (looking-at ".*?[^}]+{")
+                "while" "r-while"))
+
+           ((equal tok "class")
+            (if (looking-at "[[:space:]]*func")
+                "f-class" "class"))
+
+           ((equal tok "in")
+            (if (looking-at "[[:space:]]*\\(\/\/.*\\)*\n")
+                "closure-in" "in"))
+
+           (t tok))))
+     ))))
 
 (defun swift-smie--backward-token ()
   (let ((pos (point)))
@@ -276,20 +296,35 @@ We try to constraint those lookups by reasonable number of lines.")
     (cond
      ((and (> pos (line-end-position))
            (swift-smie--implicit-semi-p))
-      ";")
+      (if (save-excursion
+            (forward-comment 1)
+            (looking-at swift-smie--case-exp-regexp))
+          "case-;" ";"))
 
-     ((eq (char-before) ?\{) (backward-char 1) "{")
+     ((eq (char-before) ?\{) (backward-char 1)
+      (if (save-excursion (forward-comment (- 1)) (eq (char-before) ?:))
+          "closure-{" "{"))
+
+     ((and (eq (char-before) ?\})
+           (save-excursion (forward-comment 1) (looking-at ")")))
+      (backward-char 1) "closure-}")
      ((eq (char-before) ?\}) (backward-char 1) "}")
 
-     ((eq (char-before) ?,) (backward-char 1) ",")
-     ((eq (char-before) ?:) (backward-char 1)
-      ;; look-back until "case", "default", ":", "{", ";"
-      (if (looking-back "\\(case[\n\t ][^:{;]+\\|default[\n\t ]*\\)")
-          "case-:"
-        ":"))
+     ((and (eq (char-before) ?\()
+           (save-excursion (backward-char 1) (forward-list 1)
+                           (swift-smie--closure-signature-p)))
+      (backward-char 1)  "closure-(")
+     ((and (eq (char-before) ?\))
+           (save-excursion (swift-smie--closure-signature-p)))
+      (backward-char 1) "closure-)")
 
      ((looking-back "->" (- (point) 2) t)
       (goto-char (match-beginning 0)) "->")
+
+     ((eq (char-before) ?:) (backward-char 1)
+      (if (looking-back (substring swift-smie--case-exp-regexp 0
+                                   (- (length swift-smie--case-exp-regexp) 1)))
+          "case-:" ":"))
 
      ((eq (char-before) ?<) (backward-char 1)
       (if (looking-at "<[[:upper:]]") "<T" "<"))
@@ -297,32 +332,27 @@ We try to constraint those lookups by reasonable number of lines.")
       (goto-char (match-beginning 0))
       (if (looking-back "[[:space:]]" 1 t) ">" "T>"))
 
-     ((looking-back (regexp-opt swift-mode--type-decl-keywords) (- (point) 9) t)
-      (goto-char (match-beginning 0))
-      (match-string-no-properties 0))
-
-     ((looking-back swift-smie--decl-specifier-regexp (- (point) 8) t)
-      (goto-char (match-beginning 1)) "DECSPEC")
-
-     ((looking-back swift-smie--access-modifier-regexp (- (point) 8) t)
-      (goto-char (match-beginning 0)) "ACCESSMOD")
-
-     ((looking-back "\\<default\\>" (- (point) 9) t)
-      (goto-char (match-beginning 0)) "case")
-
-     ((looking-back "else if" (- (point) 7) t)
+     ((looking-back "else[[:space:]]*if" (line-beginning-position) t)
       (goto-char (match-beginning 0)) "elseif")
 
      (t (let ((tok (smie-default-backward-token)))
           (cond
            ((equal tok "case")
-            (if (looking-at "\\([\n\t ]\\|.\\)+?\\(where.*[,]\\|:\\)")
-                "case"
-              "ecase"))
-           ((equal tok "else")
-            (if (looking-back "\\(guard.*\\)" (line-beginning-position) t)
-                "elseguard"
-              "else"))
+            (if (swift-smie--case-signature-p)
+                "case" "ecase"))
+
+           ((equal tok "while")
+            (if (looking-at "while.*?[^}]+{")
+                "while" "r-while"))
+
+           ((equal tok "class")
+            (if (looking-at "class[[:space:]]*func")
+                "f-class" "class"))
+
+           ((equal tok "in")
+            (if (looking-at "in[[:space:]]*\\(\/\/.*\\)*\n")
+                "closure-in" "in"))
+
            (t tok))))
      )))
 
