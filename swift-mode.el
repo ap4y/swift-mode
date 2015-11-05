@@ -362,21 +362,53 @@
   (pcase (cons kind token)
     (`(:elem . basic) swift-indent-offset)
 
-    (`(:after . ":") 0)
+    ;; Custom case offset
+    (`(:before . ,(or "case" "default"))
+     (if (smie-rule-parent-p "switch")
+         (smie-rule-parent swift-indent-switch-case-offset)))
+
+    ;; Custom comma offset
+    (`(:before . ",")
+     (if (and swift-indent-hanging-comma-offset
+              (smie-rule-parent-p "class" "case"))
+         (smie-rule-parent swift-indent-hanging-comma-offset)))
+
+    ;; Reset offset applied by modifiers
+    (`(:before . ,(or "class" "func" "protocol"))
+     (if (not (smie-rule-bolp)) (smie-rule-parent)))
+
+    ;; Hanging collection declaration
+    (`(:before . "[")
+     (if (and (smie-rule-hanging-p)
+              (smie-rule-parent-p "let" "var"))
+         (smie-rule-parent)))
+
+    ;; Nested code block or closures
+    (`(:before . "{")
+     (if (smie-rule-parent-p "{")
+         (smie-rule-parent swift-indent-offset)))
+
+    ;; Arguments indentation
+    (`(:after . "(") (if (not (smie-rule-hanging-p)) 1))
+    (`(:before . "(")
+     (if (not (smie-rule-bolp))
+         (if (smie-rule-parent-p "func")
+             (smie-rule-parent (- swift-indent-offset))
+           (smie-rule-parent))))
+
+    ;; Closure indentation
+    (`(:after . "closure-{") swift-indent-offset)
+    (`(:before . "closure-in") (smie-rule-parent swift-indent-offset))
+
     (`(:before . ":")
      (cond
       ;; Rule for ternary operator in
       ;; assignment expression.
       ((and (smie-rule-parent-p "?") (smie-rule-bolp)) 0)
-      ((smie-rule-parent-p ",") (smie-rule-parent swift-indent-offset))
       ;; Rule for the class definition.
+      ;; class Foo:
+      ;;    Foo, Bar, Baz {
       ((smie-rule-parent-p "class") (smie-rule-parent swift-indent-offset))))
-
-    ;; Indentation rules for switch statements
-    (`(:before . "case")
-     (if (smie-rule-parent-p "{")
-         (smie-rule-parent swift-indent-switch-case-offset)))
-    (`(:before . "case-:") (smie-rule-parent swift-indent-offset))
 
     ;; Apply swift-indent-multiline-statement-offset only if
     ;; - if is a first token on the line
@@ -389,48 +421,11 @@
     ;; Apply swift-indent-multiline-statement-offset if
     ;; operator is the last symbol on the line
     (`(:after . ,(pred (lambda (token)
-                          (member token swift-smie--operators))))
+                         (member token swift-smie--operators))))
      (when (and (smie-rule-hanging-p)
                 (not (apply 'smie-rule-parent-p
-                            (append swift-smie--operators '("?" ":" "=")))))
-       swift-indent-multiline-statement-offset
-       ))
-
-    (`(:before . ",")
-     (if (and swift-indent-hanging-comma-offset (smie-rule-parent-p "class" "case"))
-         (smie-rule-parent swift-indent-hanging-comma-offset)))
-
-    ;; Disable unnecessary default indentation for
-    ;; "func" and "class" keywords
-    (`(:after . ,(or `"func" `"class")) (smie-rule-parent))
-
-    ;; "in" token in closure
-    (`(:after . "in")
-     (if (smie-rule-parent-p "{")
-         (smie-rule-parent swift-indent-offset)
-       (smie-rule-parent 0)))
-
-    (`(:after . "(")
-     (cond
-      ((smie-rule-parent-p "(") 0)
-      ((and (smie-rule-parent-p "." "func")
-            (not (smie-rule-hanging-p))) 1)
-      (t (smie-rule-parent swift-indent-offset))))
-
-    (`(:before . "(")
-     (cond
-      ((smie-rule-next-p "[") (smie-rule-parent))
-      ;; Custom indentation for method arguments
-      ((smie-rule-parent-p "." "func") (smie-rule-parent))))
-
-    (`(:before . "[")
-     (cond
-      ((smie-rule-prev-p "->") swift-indent-offset)
-      ((smie-rule-parent-p "[") (smie-rule-parent swift-indent-offset))
-      ((smie-rule-parent-p "{") nil)
-      ((smie-rule-parent-p "class-{") nil)
-      (t (smie-rule-parent))))
-    (`(:after . "->") (smie-rule-parent swift-indent-offset))
+                            (append swift-smie--operators '("?" ":" "=" "," "(")))))
+       swift-indent-multiline-statement-offset))
     ))
 
 ;;; Font lock
