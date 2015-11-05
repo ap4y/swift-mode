@@ -794,19 +794,23 @@ class Foo:
 (check-indentation indents-class-declaration/7
                    "
 class Foo: Bar<A, B,
-|C>
+|C> {
+}
 " "
 class Foo: Bar<A, B,
-               |C>
+               |C> {
+}
 ")
 
 (check-indentation indents-class-declaration/8
                    "
 class Foo<A: B<C>>:
-                   |Bar
+                   |Bar {
+}
 " "
 class Foo<A: B<C>>:
-    |Bar
+    |Bar {
+}
 ")
 
 (check-indentation indents-class-declaration/9
@@ -1036,52 +1040,52 @@ class Foo: Bar {
 (check-indentation indents-protocol-declaration/1
                    "
 protocol Foo {
-    func foo()
-|func bar()
+    func foo() {}
+|func bar() {}
 }
 " "
 protocol Foo {
-    func foo()
-    |func bar()
+    func foo() {}
+    |func bar() {}
 }
 ")
 
 (check-indentation indents-protocol-declaration/2
                    "
 protocol Foo {
-    func foo() -> Foo
-|func bar() -> Bar
+    func foo() -> Foo {}
+|func bar() -> Bar {}
 }
 " "
 protocol Foo {
-    func foo() -> Foo
-    |func bar() -> Bar
+    func foo() -> Foo {}
+    |func bar() -> Bar {}
 }
 ")
 
 (check-indentation indents-protocol-declaration/3
                    "
 protocol Foo {
-    func foo() -> Foo<A>
-|func bar() -> Bar<A>
+    func foo() -> Foo<A> {}
+|func bar() -> Bar<A> {}
 }
 " "
 protocol Foo {
-    func foo() -> Foo<A>
-    |func bar() -> Bar<A>
+    func foo() -> Foo<A> {}
+    |func bar() -> Bar<A> {}
 }
 ")
 
 (check-indentation indents-protocol-declaration/4
                    "
 protocol Foo {
-    func foo() -> [A]
-|func bar() -> [A]
+    func foo() -> [A] {}
+|func bar() -> [A] {}
 }
 " "
 protocol Foo {
-    func foo() -> [A]
-    |func bar() -> [A]
+    func foo() -> [A] {}
+    |func bar() -> [A] {}
 }
 ")
 
@@ -1353,45 +1357,45 @@ let options = NSRegularExpressionOptions.CaseInsensitive &
 
 (check-indentation indents-multiline-expressions/9
                    "
-foo?[bar] +
-     |a
+let x = foo?[bar] +
+|a
 " "
-foo?[bar] +
-  |a
+let x = foo?[bar] +
+        |a
 ")
 
 (check-indentation indents-multiline-expressions/10
                    "
-foo?(bar) +
-     |a
+let x = foo?(bar) +
+|a
 " "
-foo?(bar) +
-  |a
+let x = foo?(bar) +
+        |a
 ")
 
 (check-indentation indents-multiline-expressions/11
                    "
 func a () {
-    a +
+    let x = a +
 |a
 }
 " "
 func a () {
-    a +
-      |a
+    let x = a +
+            |a
 }
 ")
 
 (check-indentation indents-multiline-expressions/12
                    "
 func a () {
-    a
+    let x = a
 |.a()
 }
 " "
 func a () {
-    a
-      |.a()
+    let x = a
+            |.a()
 }
 ")
 
@@ -1406,38 +1410,38 @@ if (a
 
 (check-indentation indents-multiline-expressions/14
                    "
-a ??
+let x = a ??
 |b
 " "
-a ??
-  |b
+let x = a ??
+        |b
 ")
 
 (check-indentation indents-multiline-expressions/15
                    "
-a as
+let x = a as
 |b
 " "
-a as
-  |b
+let x = a as
+        |b
 ")
 
 (check-indentation indents-multiline-expressions/16
                    "
-a as?
+let x = a as?
 |b
 " "
-a as?
-  |b
+let x = a as?
+        |b
 ")
 
 (check-indentation indents-multiline-expressions/17
                    "
-a is
+let x = a is
 |b
 " "
-a is
-  |b
+let x = a is
+        |b
 ")
 
 (check-indentation indents-multiline-expressions/18
@@ -1445,12 +1449,12 @@ a is
 CGPoint(x: aaaaaaaaaaaaaaa.x +
 |bbbbbbbbbbbbbbbb,
         y: aaaaaaaaaaaaaaa.y +
-           bbbbbbbbbbbbbbbb)
+        bbbbbbbbbbbbbbbb)
 " "
 CGPoint(x: aaaaaaaaaaaaaaa.x +
-           |bbbbbbbbbbbbbbbb,
+        |bbbbbbbbbbbbbbbb,
         y: aaaaaaaaaaaaaaa.y +
-           bbbbbbbbbbbbbbbb)
+        bbbbbbbbbbbbbbbb)
 ")
 
 (check-indentation indents-multiline-expressions/19
@@ -2084,15 +2088,15 @@ foo.bar(10,
 (check-indentation anonymous-function-as-a-argument/7
                    "
 foo.bar(10,
-        completionHandler: { (
-        |bar, baz) in
+        completionHandler: { (bar,
+|baz) in
             foo
         }
 )
 " "
 foo.bar(10,
-        completionHandler: { (
-            |bar, baz) in
+        completionHandler: { (bar,
+                              |baz) in
             foo
         }
 )
