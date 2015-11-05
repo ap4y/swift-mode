@@ -165,15 +165,17 @@
 (defvar swift-smie--operators-regexp
   (regexp-opt swift-smie--operators))
 
-(defvar swift-smie--decl-specifier-regexp
-  "\\(?1:mutating\\|override\\|static\\|unowned\\|weak\\)")
+;; (defvar swift-smie--decl-specifier-regexp
+;;   "\\(?1:mutating\\|override\\|static\\|unowned\\|weak\\)")
 
-(defvar swift-smie--access-modifier-regexp
-  (regexp-opt '("private" "public" "internal")))
+;; (defvar swift-smie--access-modifier-regexp
+;;   (regexp-opt '("private" "public" "internal")))
 
 (defun swift-smie--implicit-semi-p ()
   (save-excursion
-    (not (or (memq (char-before) '(?\{ ?\[ ?, ?. ?: ?= ?\())
+    (skip-chars-backward " \t")
+    (not (or (bolp)
+             (memq (char-before) '(?\{ ?\[ ?, ?. ?: ?= ?\())
              ;; Checking for operators form for "?" and "!",
              ;; they can be a part of the type.
              ;; Special case: is? and as? are operators.
@@ -185,7 +187,7 @@
              ;; Characters placed on the second line in multi-line expression
              (save-excursion
                (forward-comment (buffer-size))
-               (looking-at "[.?:]"))
+               (looking-at "[.?:()]"))
              ;; Operators placed on the second line in multi-line expression
              ;; Should respect here possible comments strict before the linebreak
              (save-excursion
