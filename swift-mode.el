@@ -198,18 +198,16 @@
              ))))
 
 (defun swift-smie--forward-token-debug ()
-  (let ((token (swift-smie--forward-token)))
-    (unless (equal token "")
-      (cl-assert (equal token
-                     (save-excursion (swift-smie--backward-token))) t))
+  (let ((op (point))
+        (token (swift-smie--forward-token)))
+    (message "forward: %s -> %s = %s" op (point) token)
     token
     ))
 
 (defun swift-smie--backward-token-debug ()
-  (let ((token (swift-smie--backward-token)))
-    (unless (equal token "")
-      (cl-assert (equal token
-                     (save-excursion (swift-smie--forward-token))) t))
+  (let ((op (point))
+        (token (swift-smie--backward-token)))
+    (message "backward: %s -> %s = %s" op (point) token)
       token
     ))
 
