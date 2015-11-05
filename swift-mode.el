@@ -76,103 +76,57 @@
    (smie-merge-prec2s
     (smie-bnf->prec2
      '((id)
-       (type (type) (type "<T" types "T>") ("[" type "]"))
-       (types (type) (type "," type))
-
-       (class-decl-exp (id) (id ":" types))
-       (decl-exp (id) (id ":" type))
-       (decl-exps (decl-exp) (decl-exp "," decl-exp))
-
-       (assign-exp (decl-exp) (id "=" exp))
-
-       (decl (decl ";" decl))
-       (decl (let-decl) (var-decl))
-       (let-decl
-        ("let" decl-exp)
-        ("let" decl-exp "=" exp))
-       (var-decl
-        ("var" decl-exp)
-        ("var" decl-exp "=" exp))
-
-       (top-level-sts (top-level-st) (top-level-st ";" top-level-st))
-       (top-level-st
-        ("import" type)
-        (decl)
-        ("ACCESSMOD" "class" class-decl-exp "{" class-level-sts "}")
-        ("ACCESSMOD" "protocol" class-decl-exp "{" protocol-level-sts "}")
-        )
-
-       (class-level-sts (class-level-st) (class-level-st ";" class-level-st))
-       (class-level-st
-        (decl)
-        (func))
-
-       (protocol-level-sts (protocol-level-st) (protocol-level-st ";" protocol-level-st))
-       (protocol-level-st
-        (decl)
-        (func-decl))
-
-       (func-body (insts) ("return" exp))
-       (func (func-decl "{" func-body "}"))
-       (func-decl ("DECSPEC" "func" func-header)
-                  (func-decl "->" type))
-       (func-header (id "(" func-params ")"))
-       (func-param (decl-exp) (decl-exp "=" id) ("..."))
-       (func-params (func-param "," func-param))
-
-       (insts (inst) (insts ";" insts))
-       (inst (decl)
-             (exp "=" exp)
-             (in-exp)
-             (dot-exp)
-             (dot-exp "{" closure "}")
-             (method-call)
-             (method-call "{" closure "}")
-             ("enum" decl-exp "{" enum-body "}")
+       (inst (if-clause)
+             ("guard" exp "else" "{" insts "}")
              ("switch" exp "{" switch-body "}")
-             (if-clause)
-             (guard-statement)
+             ("enum" exp "{" insts "}")
+             ("ecase" exps)
              ("for" for-head "{" insts "}")
-             ("while" exp "{" insts "}"))
+             ("while" exp "{" insts "}")
+             ("repeat" exp "{" insts "}")
+             ("class" exps "{" insts "}")
+             ("func" exp "{" insts "}")
+             ("func" exp "->" exps "{" insts "}")
+             ("protocol" exp "{" insts "}")
+             ("let" exp)
+             ("var" exp)
+             ("return" exp)
+             (exp "{" closure-exp "}")
+             (exp))
+       (insts (insts ";" insts) (inst))
+       (exp ("<T" exps "T>")
+            (exp "." id)
+            (id ":" exp)
+            (exp "=" exp)
+            ("(" func-args ")"))
+       (exps (exps "," exps) (exp))
 
-       (dot-exp (id "." id))
+       (if-clause (if-clause "elseif" exp "{" insts "}")
+                  (if-clause "else" "{" insts "}")
+                  (if-body))
+       (if-body ("if" exp "{" insts "}"))
 
-       (method-call (dot-exp "(" method-args ")"))
-       (method-args (method-arg) (method-args "," method-args))
-       (method-arg (id "{" closure "}") (exp))
+       (switch-body (switch-body "case-;" switch-body)
+                    ("case" exps "case-:" insts)
+                    ("default" "case-:" insts))
 
-       (exp ("[" decl-exps "]"))
-       (in-exp (id "in" exp))
-       (guard-exp (exp "where" exp))
+       (enum-body (enum-body ";" enum-body) (inst) ("ecase" exps))
 
-       (enum-case ("ecase" assign-exp)
-                  ("ecase" "(" type ")"))
-       (enum-cases (enum-case) (enum-case ";" enum-case))
-       (enum-body (enum-cases) (insts))
+       (for-head (exp) (for-head ";" for-head) (exp "in" exp))
 
-       (case-exps (exp)
-                  (guard-exp)
-                  (case-exps "," case-exps))
-       (case (case-exps "case-:" insts))
-       (switch-body (case) (case "case" case))
+       (closure-exp (insts) (closure-signature "closure-in" insts)
+                    (closure-signature "->" id "closure-in" insts))
+       (closure-signature (exp) ("closure-(" exps "closure-)") ("[" exps "]"))
 
-       (for-head (in-exp) (op-exp) (for-head ";" for-head))
-
-       (guard-conditional (exp) (let-decl) (var-decl))
-       (guard-statement ("guard" guard-conditional "elseguard" "{" insts "}"))
-
-       (if-conditional (exp) (let-decl))
-       (if-body ("if" if-conditional "{" insts "}"))
-       (if-clause (if-body)
-                  (if-body "elseif" if-conditional "{" insts "}")
-                  (if-body "else" "{" insts "}"))
-
-       (closure (insts) (exp "in" insts) (exp "->" id "in" insts)))
+       (func-args (func-args "," func-args)
+                  (id ":" "closure-{" closure-exp "closure-}")
+                  (exp)))
      ;; Conflicts
-     '((nonassoc "{") (assoc "in") (assoc ",") (assoc ";") (right "=") (right ":"))
-     '((assoc "in") (assoc "where"))
-     '((assoc ";") (assoc "ecase"))
-     '((assoc "case")))
+     '((nonassoc "{") (assoc ";"))
+     '((assoc ","))
+     '((assoc "case-;"))
+     '((right "=") (assoc ".") (assoc ":") (assoc ","))
+     )
 
     (smie-precs->prec2
      '(
