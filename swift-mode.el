@@ -165,11 +165,6 @@
 (defvar swift-smie--operators-regexp
   (regexp-opt swift-smie--operators))
 
-;; (defvar swift-smie--decl-specifier-regexp
-;;   "\\(?1:mutating\\|override\\|static\\|unowned\\|weak\\)")
-
-;; (defvar swift-smie--access-modifier-regexp
-;;   (regexp-opt '("private" "public" "internal")))
 
 (defun swift-smie--implicit-semi-p ()
   (save-excursion
