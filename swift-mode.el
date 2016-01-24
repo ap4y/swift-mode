@@ -413,6 +413,10 @@
            (+ swift-indent-offset swift-indent-multiline-statement-offset)
          swift-indent-multiline-statement-offset)))
 
+    ;; Closure with return type bound to type or variable
+    (`(:before . ";")
+     (if (smie-rule-parent-p "->") (smie-rule-parent)))
+
     ;; Apply swift-indent-multiline-statement-offset if
     ;; operator is the last symbol on the line
     (`(:after . ,(pred (lambda (token)

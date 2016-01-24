@@ -1769,6 +1769,15 @@ let foo = bar >
           |baz
 ")
 
+(check-indentation indents-typealias-with-closure/1
+                   "
+public typealias Validation = (NSURLRequest, NSHTTPURLResponse) -> Bool
+    |bar
+" "
+public typealias Validation = (NSURLRequest, NSHTTPURLResponse) -> Bool
+|bar
+")
+
 (check-indentation indents-multiline-operators-only-once/1
                    "
 1 +
