@@ -1658,6 +1658,15 @@ let foo =
     a
 ")
 
+(check-indentation indents-multiline-expressions/25
+                   "
+let foo
+    |(result, error) = responseSerializer.serializeResponse()
+" "
+let foo
+|(result, error) = responseSerializer.serializeResponse()
+")
+
 (check-indentation indents-long-parameters/1
                    "
 func foo() {

@@ -186,7 +186,7 @@
              ;; Characters placed on the second line in multi-line expression
              (save-excursion
                (forward-comment (buffer-size))
-               (looking-at "[.?:()]"))
+               (looking-at "[.?:]"))
              ;; Operators placed on the second line in multi-line expression
              ;; Should respect here possible comments strict before the linebreak
              (save-excursion
