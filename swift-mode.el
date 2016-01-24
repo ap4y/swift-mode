@@ -163,7 +163,7 @@
    "<<" ">>" "??"))
 
 (defvar swift-smie--operators-regexp
-  (regexp-opt swift-smie--operators))
+  (concat (regexp-opt swift-smie--operators) "\\($\\|[[:space:]]\\)"))
 
 
 (defun swift-smie--implicit-semi-p ()

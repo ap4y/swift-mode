@@ -2399,6 +2399,15 @@ guard let x = y else {
 }
 ")
 
+(check-indentation indents-type-casting-operators/1
+                   "
+let foo = Foo()
+    |isBar = baz
+" "
+let foo = Foo()
+|isBar = baz
+")
+
 (provide 'indentation-tests)
 
 ;;; indentation-tests.el ends here
