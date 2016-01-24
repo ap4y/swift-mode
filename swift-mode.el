@@ -260,6 +260,8 @@
       (if (looking-back swift-smie--case-exp-regexp)
           "case-:" ":"))
 
+     ((looking-at "[.]\\{2\\}<") (forward-char 3) "..<")
+
      ((looking-at "<") (forward-char 1)
       (if (looking-at "[[:upper:]]") "<T" "<"))
 
@@ -326,6 +328,8 @@
       (if (looking-back (substring swift-smie--case-exp-regexp 0
                                    (- (length swift-smie--case-exp-regexp) 1)))
           "case-:" ":"))
+
+     ((looking-back "[.]\\{2\\}<" (- (point) 3)) (backward-char 3) "..<")
 
      ((eq (char-before) ?<) (backward-char 1)
       (if (looking-at "<[[:upper:]]") "<T" "<"))

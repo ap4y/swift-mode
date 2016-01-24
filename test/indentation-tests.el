@@ -737,6 +737,17 @@ for var index = 0; index < 3; ++index  {
 }
 ")
 
+(check-indentation indents-for-statements/4
+  "
+for index in 0..<SecTrustGetCertificateCount(trust) {
+        |let foo bar
+}
+" "
+for index in 0..<SecTrustGetCertificateCount(trust) {
+    |let foo bar
+}
+")
+
 (check-indentation indents-while-statements
   "
 while foo < bar{
