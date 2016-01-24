@@ -678,6 +678,17 @@ enum OrderViewTableTakeAwayCells: Int {
 }
 ")
 
+(check-indentation indents-case-statements-in-enum/6
+                   "
+public enum Foo {
+       |case A
+}
+" "
+public enum Foo {
+    |case A
+}
+")
+
 (check-indentation indents-declaration-statements-in-enum/1
                    "
 enum Foo: Bar {

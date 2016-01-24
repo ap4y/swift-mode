@@ -369,7 +369,7 @@
          (smie-rule-parent swift-indent-hanging-comma-offset)))
 
     ;; Reset offset applied by modifiers
-    (`(:before . ,(or "class" "func" "protocol"))
+    (`(:before . ,(or "class" "func" "protocol" "enum"))
      (if (not (smie-rule-bolp)) (smie-rule-parent)))
 
     ;; Hanging collection declaration
