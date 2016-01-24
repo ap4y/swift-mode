@@ -1137,6 +1137,17 @@ class Foo: Bar {
 }
 ")
 
+(check-indentation indents-func-declaration/13
+                   "
+public func upload(
+    multipartFormData: MultipartFormData -> Void,
+        |encodingCompletion: (MultipartFormDataEncodingResult -> Void)?) {}
+" "
+public func upload(
+    multipartFormData: MultipartFormData -> Void,
+    |encodingCompletion: (MultipartFormDataEncodingResult -> Void)?) {}
+")
+
 (check-indentation indents-protocol-declaration/1
                    "
 protocol Foo {

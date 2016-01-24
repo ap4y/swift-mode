@@ -364,9 +364,11 @@
 
     ;; Custom comma offset
     (`(:before . ",")
-     (if (and swift-indent-hanging-comma-offset
-              (smie-rule-parent-p "class" "case"))
-         (smie-rule-parent swift-indent-hanging-comma-offset)))
+     (cond
+      ((and swift-indent-hanging-comma-offset (smie-rule-parent-p "class" "case"))
+       (smie-rule-parent swift-indent-hanging-comma-offset))
+      ;; Closure with return type bound to function argument
+      ((smie-rule-parent-p "->") (smie-rule-parent))))
 
     ;; Reset offset applied by modifiers
     (`(:before . ,(or "class" "func" "protocol" "enum"))
