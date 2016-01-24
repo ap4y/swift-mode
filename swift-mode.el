@@ -427,6 +427,10 @@
     (`(:before . ";")
      (if (smie-rule-parent-p "->") (smie-rule-parent)))
 
+    ;; return type at the beginning of the line
+    (`(:before . "->")
+     (if (smie-rule-bolp) (smie-rule-parent swift-indent-offset)))
+
     ;; Apply swift-indent-multiline-statement-offset if
     ;; operator is the last symbol on the line
     (`(:after . ,(pred (lambda (token)

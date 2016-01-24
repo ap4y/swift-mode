@@ -1159,6 +1159,17 @@ public func upload(
     |encodingCompletion: (MultipartFormDataEncodingResult -> Void)?) {}
 ")
 
+(check-indentation indents-func-declaration/14
+                   "
+public func foo()
+        |-> Self {
+}
+" "
+public func foo()
+    |-> Self {
+}
+")
+
 (check-indentation indents-protocol-declaration/1
                    "
 protocol Foo {
