@@ -162,6 +162,10 @@
    "*" "/" "%" "&*" "&/" "&%" "&"
    "<<" ">>" "??"))
 
+;; This regex is used for deriving implicit semicolon
+;; in multi-line expressions. We want to exclude some operator
+;; from the match when they are a part of the word,
+;; for example isValid
 (defvar swift-smie--operators-regexp
   (concat (regexp-opt swift-smie--operators) "\\($\\|[[:space:]]\\)"))
 
@@ -448,7 +452,8 @@
 
 (defvar swift-mode--statement-keywords
   '("break" "case" "continue" "default" "do" "else" "fallthrough"
-    "if" "in" "for" "return" "switch" "where" "repeat" "while" "guard"))
+    "if" "in" "for" "return" "switch" "where" "repeat" "while" "guard"
+    "as" "is"))
 
 (defvar swift-mode--contextual-keywords
   '("associativity" "didSet" "get" "infix" "inout" "left" "mutating" "none"
