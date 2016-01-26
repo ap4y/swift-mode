@@ -217,6 +217,14 @@ test will fail."
 (check-face compiler-control/has-keyword-face/3 font-lock-keyword-face "{{#else}}")
 (check-face compiler-control/has-keyword-face/4 font-lock-keyword-face "{{#endif}}")
 
+(check-face error-handling/has-keyword-face/1 font-lock-keyword-face "func vend(itemNamed name: String) {{throws}}")
+(check-face error-handling/has-keyword-face/2 font-lock-keyword-face "{{throw}} VendingMachineError.InvalidSelection")
+(check-face error-handling/has-keyword-face/3 font-lock-keyword-face "{{try}} buyFavoriteSnack()")
+(check-face error-handling/has-keyword-face/4 font-lock-keyword-face "if let data = {{try}}? fetchDataFromDisk() {}")
+(check-face error-handling/has-keyword-face/5 font-lock-keyword-face "let photo = {{try}}! loadImage()")
+(check-face error-handling/has-keyword-face/6 font-lock-keyword-face "{{catch}} VendingMachineError.InvalidSelection")
+(check-face error-handling/has-keyword-face/7 font-lock-keyword-face "{{defer}} { close(file) }")
+
 (provide 'font-lock-tests)
 
 ;;; font-lock-tests.el ends here
