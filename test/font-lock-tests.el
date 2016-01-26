@@ -166,6 +166,8 @@ test will fail."
 (check-face enum/generic-parameter/has-type-face/3 font-lock-type-face "enum Name <{{T}}> {}")
 (check-face enum/generic-parameter/brackets-have-default-face/1 nil "enum N{{<}}T>")
 (check-face enum/generic-parameter/brackets-have-default-face/2 nil "enum N<T{{>}}")
+(check-face indirect-enum/has-keyword-face/1 font-lock-keyword-face "{{indirect}} enum T")
+(check-face indirect-enum/has-keyword-face/2 font-lock-keyword-face "{{indirect}} enum T")
 
 (check-face class/has-keyword-face/1 font-lock-keyword-face "{{class}} T")
 (check-face class/has-keyword-face/2 font-lock-keyword-face "{{class}} T")
