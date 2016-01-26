@@ -212,6 +212,11 @@ test will fail."
 (check-face type-casting/has-keyword-face/3 font-lock-keyword-face "foo {{as}}? bar")
 (check-face type-casting/has-keyword-face/4 font-lock-keyword-face "foo {{as}}! bar")
 
+(check-face compiler-control/has-keyword-face/1 font-lock-keyword-face "{{#if}} os(iOS)")
+(check-face compiler-control/has-keyword-face/2 font-lock-keyword-face "{{#elseif}} os(iOS)")
+(check-face compiler-control/has-keyword-face/3 font-lock-keyword-face "{{#else}}")
+(check-face compiler-control/has-keyword-face/4 font-lock-keyword-face "{{#endif}}")
+
 (provide 'font-lock-tests)
 
 ;;; font-lock-tests.el ends here

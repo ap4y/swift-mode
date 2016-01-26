@@ -2442,57 +2442,57 @@ let foo = Foo()
 (check-indentation indents-compiler-control-statements/1
                    "
 #if os(iOS)
-|import MobileCoreServices
+    |import MobileCoreServices
 #elseif os(OSX)
-    import CoreServices
+import CoreServices
 #else
-    import Baz
+import Baz
 #endif
 " "
 #if os(iOS)
-    |import MobileCoreServices
+|import MobileCoreServices
 #elseif os(OSX)
-    import CoreServices
+import CoreServices
 #else
-    import Baz
+import Baz
 #endif
 ")
 
 (check-indentation indents-compiler-control-statements/2
                    "
 #if os(iOS)
-    import MobileCoreServices
-#elseif os(OSX)
-|import CoreServices
-#else
-    import Baz
-#endif
-" "
-#if os(iOS)
-    import MobileCoreServices
+import MobileCoreServices
 #elseif os(OSX)
     |import CoreServices
 #else
-    import Baz
+import Baz
+#endif
+" "
+#if os(iOS)
+import MobileCoreServices
+#elseif os(OSX)
+|import CoreServices
+#else
+import Baz
 #endif
 ")
 
 (check-indentation indents-compiler-control-statements/3
                    "
 #if os(iOS)
-    import MobileCoreServices
+import MobileCoreServices
 #elseif os(OSX)
-    import CoreServices
+import CoreServices
 #else
-|import Baz
+    |import Baz
 #endif
 " "
 #if os(iOS)
-    import MobileCoreServices
+import MobileCoreServices
 #elseif os(OSX)
-    import CoreServices
+import CoreServices
 #else
-    |import Baz
+|import Baz
 #endif
 ")
 

@@ -440,8 +440,8 @@
     ;; Compiler control statement
     (`(:before . ,(or "#elseif" "#else")) (smie-rule-parent))
     (`(:after . ";")
-     (if (smie-rule-parent-p "#else" "#elseif")
-         (smie-rule-parent swift-indent-offset)))
+     (if (smie-rule-parent-p "#if" "#else" "#elseif")
+         (smie-rule-parent)))
 
     ;; Apply swift-indent-multiline-statement-offset if
     ;; operator is the last symbol on the line
@@ -473,7 +473,7 @@
 (defvar swift-mode--statement-keywords
   '("break" "case" "continue" "default" "do" "else" "fallthrough"
     "if" "in" "for" "return" "switch" "where" "repeat" "while" "guard"
-    "as" "is"))
+    "as" "is" "#if" "#elseif" "#else" "#endif"))
 
 (defvar swift-mode--contextual-keywords
   '("associativity" "didSet" "get" "infix" "inout" "left" "mutating" "none"
