@@ -2439,6 +2439,63 @@ let foo = Foo()
 |isBar = baz
 ")
 
+(check-indentation indents-compiler-control-statements/1
+                   "
+#if os(iOS)
+|import MobileCoreServices
+#elseif os(OSX)
+    import CoreServices
+#else
+    import Baz
+#endif
+" "
+#if os(iOS)
+    |import MobileCoreServices
+#elseif os(OSX)
+    import CoreServices
+#else
+    import Baz
+#endif
+")
+
+(check-indentation indents-compiler-control-statements/2
+                   "
+#if os(iOS)
+    import MobileCoreServices
+#elseif os(OSX)
+|import CoreServices
+#else
+    import Baz
+#endif
+" "
+#if os(iOS)
+    import MobileCoreServices
+#elseif os(OSX)
+    |import CoreServices
+#else
+    import Baz
+#endif
+")
+
+(check-indentation indents-compiler-control-statements/3
+                   "
+#if os(iOS)
+    import MobileCoreServices
+#elseif os(OSX)
+    import CoreServices
+#else
+|import Baz
+#endif
+" "
+#if os(iOS)
+    import MobileCoreServices
+#elseif os(OSX)
+    import CoreServices
+#else
+    |import Baz
+#endif
+")
+
 (provide 'indentation-tests)
 
 ;;; indentation-tests.el ends here

@@ -88,6 +88,7 @@
              ("func" exp "{" insts "}")
              ("func" exp "->" exps "{" insts "}")
              ("protocol" exp "{" insts "}")
+             (compiler-control)
              ("let" exp)
              ("var" exp)
              ("return" exp)
@@ -105,6 +106,10 @@
                   (if-clause "else" "{" insts "}")
                   (if-body))
        (if-body ("if" exp "{" insts "}"))
+
+       (cc-body-else (insts) (cc-body-else "#else" insts))
+       (cc-body (cc-body-else) (cc-body "#elseif" cc-body))
+       (compiler-control ("#if" cc-body "#endif"))
 
        (switch-body (switch-body "case-;" switch-body)
                     ("case" exps "case-:" insts)
@@ -125,6 +130,7 @@
      '((nonassoc "{") (assoc ";"))
      '((assoc ","))
      '((assoc "case-;"))
+     '((assoc "#elseif"))
      '((right "=") (assoc ".") (assoc ":") (assoc ","))
      )
 
@@ -269,7 +275,7 @@
       (goto-char (match-end 0))
       (if (looking-back "[[:space:]]>" 2 t) ">" "T>"))
 
-     ((looking-at "else[[:space:]]*if")
+     ((looking-at "else[[:space:]]+if")
       (goto-char (match-end 0)) "elseif")
 
      (t (let ((tok (smie-default-forward-token)))
@@ -337,7 +343,7 @@
       (goto-char (match-beginning 0))
       (if (looking-back "[[:space:]]" 1 t) ">" "T>"))
 
-     ((looking-back "else[[:space:]]*if" (line-beginning-position) t)
+     ((looking-back "else[[:space:]]+if" (line-beginning-position) t)
       (goto-char (match-beginning 0)) "elseif")
 
      (t (let ((tok (smie-default-backward-token)))
@@ -430,6 +436,12 @@
     ;; return type at the beginning of the line
     (`(:before . "->")
      (if (smie-rule-bolp) (smie-rule-parent swift-indent-offset)))
+
+    ;; Compiler control statement
+    (`(:before . ,(or "#elseif" "#else")) (smie-rule-parent))
+    (`(:after . ";")
+     (if (smie-rule-parent-p "#else" "#elseif")
+         (smie-rule-parent swift-indent-offset)))
 
     ;; Apply swift-indent-multiline-statement-offset if
     ;; operator is the last symbol on the line
@@ -759,6 +771,7 @@ You can send text to the REPL process from other buffers containing source.
     (modify-syntax-entry ?? "_" table)
     (modify-syntax-entry ?! "_" table)
     (modify-syntax-entry ?: "." table)
+    (modify-syntax-entry ?# "w" table)
 
     ;; Comments
     (modify-syntax-entry ?/  ". 124b" table)
