@@ -218,6 +218,7 @@ test will fail."
 (check-face compiler-control/has-keyword-face/2 font-lock-keyword-face "{{#elseif}} os(iOS)")
 (check-face compiler-control/has-keyword-face/3 font-lock-keyword-face "{{#else}}")
 (check-face compiler-control/has-keyword-face/4 font-lock-keyword-face "{{#endif}}")
+(check-face compiler-control/has-keyword-face/5 font-lock-keyword-face "if {{#available}}(iOS 9, *)")
 
 (check-face error-handling/has-keyword-face/1 font-lock-keyword-face "func vend(itemNamed name: String) {{throws}}")
 (check-face error-handling/has-keyword-face/2 font-lock-keyword-face "{{throw}} VendingMachineError.InvalidSelection")

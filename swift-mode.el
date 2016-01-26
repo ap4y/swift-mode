@@ -474,7 +474,7 @@
   '("break" "case" "continue" "default" "do" "else" "fallthrough"
     "if" "in" "for" "return" "switch" "where" "repeat" "while" "guard"
     "as" "is" "#if" "#elseif" "#else" "#endif" "throws" "throw" "try"
-    "catch" "defer" "indirect"))
+    "catch" "defer" "indirect" "#available"))
 
 (defvar swift-mode--contextual-keywords
   '("associativity" "didSet" "get" "infix" "inout" "left" "mutating" "none"
