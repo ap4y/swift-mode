@@ -2496,6 +2496,17 @@ import CoreServices
 #endif
 ")
 
+(check-indentation indents-defer-statement/1
+                   "
+defer {
+|close(file)
+}
+" "
+defer {
+    |close(file)
+}
+")
+
 (provide 'indentation-tests)
 
 ;;; indentation-tests.el ends here

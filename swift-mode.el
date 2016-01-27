@@ -88,6 +88,7 @@
              ("func" exp "{" insts "}")
              ("func" exp "->" exps "{" insts "}")
              ("protocol" exp "{" insts "}")
+             ("defer" "{" insts "}")
              (compiler-control)
              ("let" exp)
              ("var" exp)
