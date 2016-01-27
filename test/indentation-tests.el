@@ -2507,6 +2507,66 @@ defer {
 }
 ")
 
+(check-indentation indents-do-statement/1
+                   "
+do {
+|try buyFavoriteSnack(foo, vendingMachine: vendingMachine)
+} catch VendingMachineError.InvalidSelection {
+    print()
+}
+" "
+do {
+    |try buyFavoriteSnack(foo, vendingMachine: vendingMachine)
+} catch VendingMachineError.InvalidSelection {
+    print()
+}
+")
+
+(check-indentation indents-do-statement/2
+                   "
+do {
+    try buyFavoriteSnack(foo, vendingMachine: vendingMachine)
+} catch VendingMachineError.InvalidSelection {
+|print()
+}
+" "
+do {
+    try buyFavoriteSnack(foo, vendingMachine: vendingMachine)
+} catch VendingMachineError.InvalidSelection {
+    |print()
+}
+")
+
+(check-indentation indents-do-statement/3
+                   "
+do {
+    try buyFavoriteSnack(foo, vendingMachine: vendingMachine)
+} catch VendingMachineError.OutOfStock where Foo {
+|print()
+}
+" "
+do {
+    try buyFavoriteSnack(foo, vendingMachine: vendingMachine)
+} catch VendingMachineError.OutOfStock where Foo {
+    |print()
+}
+")
+
+(check-indentation indents-do-statement/4
+                   "
+do {
+    try buyFavoriteSnack(foo, vendingMachine: vendingMachine)
+} catch VendingMachineError.InsufficientFunds(let coinsNeeded) {
+|print()
+}
+" "
+do {
+    try buyFavoriteSnack(foo, vendingMachine: vendingMachine)
+} catch VendingMachineError.InsufficientFunds(let coinsNeeded) {
+    |print()
+}
+")
+
 (provide 'indentation-tests)
 
 ;;; indentation-tests.el ends here

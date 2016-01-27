@@ -89,6 +89,7 @@
              ("func" exp "->" exps "{" insts "}")
              ("protocol" exp "{" insts "}")
              ("defer" "{" insts "}")
+             (do-clause)
              (compiler-control)
              ("let" exp)
              ("var" exp)
@@ -119,6 +120,10 @@
        (enum-body (enum-body ";" enum-body) (inst) ("ecase" exps))
 
        (for-head (exp) (for-head ";" for-head) (exp "in" exp))
+
+       (do-clause (do-clause "catch" exp "{" insts "}")
+                  (do-body))
+       (do-body ("do" "{" insts "}"))
 
        (closure-exp (insts) (closure-signature "closure-in" insts)
                     (closure-signature "->" id "closure-in" insts))
