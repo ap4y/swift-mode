@@ -226,6 +226,17 @@ if foo {
 }
 ")
 
+(check-indentation indent-if-body-with-availability-macro
+  "
+if #available(iOS 9, *) {
+|return nil
+}
+" "
+if #available(iOS 9, *) {
+    |return nil
+}
+")
+
 (check-indentation indents-case-statements-to-same-level-as-enclosing-switch/1
   "
 switch true {
