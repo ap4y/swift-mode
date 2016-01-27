@@ -206,6 +206,7 @@ test will fail."
 (check-face super/has-keyword-face/1 font-lock-keyword-face "{{super}}.foo")
 
 (check-face attributes/has-keyword-face/1 font-lock-keyword-face "{{@IBAction}} func")
+(check-face attributes/has-keyword-face/2 font-lock-keyword-face "{{@testable}} import")
 
 (check-face comments/nested-multiline-comments-has-comments-face/1 font-lock-comment-face "/*/* text */{{*/}}")
 

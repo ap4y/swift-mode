@@ -564,7 +564,7 @@
     ;;
     ;; Use string face for attribute name.
     (,(rx (or bol space)(group "@" (+ word)) eow)
-     1 font-lock-string-face)
+     1 font-lock-keyword-face)
 
     ;; Imported modules
     ;;
@@ -773,6 +773,7 @@ You can send text to the REPL process from other buffers containing source.
     (modify-syntax-entry ?! "_" table)
     (modify-syntax-entry ?: "." table)
     (modify-syntax-entry ?# "w" table)
+    (modify-syntax-entry ?@ "w" table)
 
     ;; Comments
     (modify-syntax-entry ?/  ". 124b" table)
