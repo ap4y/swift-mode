@@ -227,6 +227,7 @@ test will fail."
 (check-face error-handling/has-keyword-face/5 font-lock-keyword-face "let photo = {{try}}! loadImage()")
 (check-face error-handling/has-keyword-face/6 font-lock-keyword-face "{{catch}} VendingMachineError.InvalidSelection")
 (check-face error-handling/has-keyword-face/7 font-lock-keyword-face "{{defer}} { close(file) }")
+(check-face error-handling/has-keyword-face/8 font-lock-keyword-face "func vend(itemNamed name: String) {{rethrows}}")
 
 (provide 'font-lock-tests)
 
