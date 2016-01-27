@@ -237,6 +237,43 @@ if #available(iOS 9, *) {
 }
 ")
 
+(check-indentation indent-if-statement-with-pattern-matching/1
+  "
+if case 0...225 = numberOfTaylorSwiftSongsFavorited {
+|print()
+}
+" "
+if case 0...225 = numberOfTaylorSwiftSongsFavorited {
+    |print()
+}
+")
+
+(check-indentation indent-if-statement-with-pattern-matching/2
+  "
+if case .DOB(let otherBday) = signUpFormField
+        where taylorSwiftsBday.compare(otherBday) == .OrderedDescending {
+|print()
+}
+" "
+if case .DOB(let otherBday) = signUpFormField
+        where taylorSwiftsBday.compare(otherBday) == .OrderedDescending {
+    |print()
+}
+")
+
+(check-indentation indent-if-statement-with-pattern-matching/3
+  "
+if case .DOB(let otherBday) = signUpFormField
+|where taylorSwiftsBday.compare(otherBday) == .OrderedDescending {
+    print()
+}
+" "
+if case .DOB(let otherBday) = signUpFormField
+        |where taylorSwiftsBday.compare(otherBday) == .OrderedDescending {
+    print()
+}
+")
+
 (check-indentation indents-case-statements-to-same-level-as-enclosing-switch/1
   "
 switch true {
@@ -756,6 +793,17 @@ for index in 0..<SecTrustGetCertificateCount(trust) {
 " "
 for index in 0..<SecTrustGetCertificateCount(trust) {
     |let foo bar
+}
+")
+
+(check-indentation indents-for-statements-with-pattern-matching/1
+  "
+for case .Food(let value) in enumValues {
+|print(value)
+}
+" "
+for case .Food(let value) in enumValues {
+    |print(value)
 }
 ")
 

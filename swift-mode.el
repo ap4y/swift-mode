@@ -82,6 +82,7 @@
              ("enum" exp "{" insts "}")
              ("ecase" exps)
              ("for" for-head "{" insts "}")
+             ("for-case" exp "{" insts "}")
              ("while" exp "{" insts "}")
              ("repeat" exp "{" insts "}")
              ("class" exps "{" insts "}")
@@ -107,7 +108,7 @@
        (if-clause (if-clause "elseif" exp "{" insts "}")
                   (if-clause "else" "{" insts "}")
                   (if-body))
-       (if-body ("if" exp "{" insts "}"))
+       (if-body ("if" exp "{" insts "}") ("if-case" exp "{" insts "}"))
 
        (cc-body-else (insts) (cc-body-else "#else" insts))
        (cc-body (cc-body-else) (cc-body "#elseif" cc-body))
@@ -284,6 +285,12 @@
      ((looking-at "else[[:space:]]+if")
       (goto-char (match-end 0)) "elseif")
 
+     ((looking-at "for[[:space:]]+case")
+      (goto-char (match-end 0)) "for-case")
+
+     ((looking-at "if[[:space:]]+case")
+      (goto-char (match-end 0)) "if-case")
+
      (t (let ((tok (smie-default-forward-token)))
           (cond
            ((equal tok "case")
@@ -351,6 +358,12 @@
 
      ((looking-back "else[[:space:]]+if" (line-beginning-position) t)
       (goto-char (match-beginning 0)) "elseif")
+
+     ((looking-back "for[[:space:]]+case" (line-beginning-position) t)
+      (goto-char (match-beginning 0)) "for-case")
+
+     ((looking-back "if[[:space:]]+case" (line-beginning-position) t)
+      (goto-char (match-beginning 0)) "if-case")
 
      (t (let ((tok (smie-default-backward-token)))
           (cond
