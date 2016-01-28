@@ -2626,6 +2626,28 @@ do {
 }
 ")
 
+(check-indentation indents-extension-declaration/1
+                   "
+extension SomeType: SomeProtocol, AnotherProtocol {
+|foo
+}
+" "
+extension SomeType: SomeProtocol, AnotherProtocol {
+    |foo
+}
+")
+
+(check-indentation indents-extension-declaration/2
+                   "
+extension Bird where Self: Flyable {
+|var canFly: Bool { return true }
+}
+" "
+extension Bird where Self: Flyable {
+    |var canFly: Bool { return true }
+}
+")
+
 (provide 'indentation-tests)
 
 ;;; indentation-tests.el ends here

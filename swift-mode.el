@@ -86,6 +86,7 @@
              ("while" exp "{" insts "}")
              ("repeat" exp "{" insts "}")
              ("class" exps "{" insts "}")
+             ("extension" exps "{" insts "}")
              ("func" exp "{" insts "}")
              ("func" exp "->" exps "{" insts "}")
              ("protocol" exp "{" insts "}")
