@@ -84,7 +84,7 @@
              ("for" for-head "{" insts "}")
              ("for-case" exp "{" insts "}")
              ("while" exp "{" insts "}")
-             ("repeat" exp "{" insts "}")
+             (repeat-clause)
              ("class" exps "{" insts "}")
              ("extension" exps "{" insts "}")
              ("func" exp "{" insts "}")
@@ -126,6 +126,10 @@
        (do-clause (do-clause "catch" exp "{" insts "}")
                   (do-body))
        (do-body ("do" "{" insts "}"))
+
+       (repeat-clause (repeat-clause "r-while" exp)
+                      (repeat-body))
+       (repeate-body ("repeat" "{" insts "}"))
 
        (closure-exp (insts) (closure-signature "closure-in" insts)
                     (closure-signature "->" id "closure-in" insts))
@@ -289,6 +293,10 @@
      ((looking-at "for[[:space:]]+case")
       (goto-char (match-end 0)) "for-case")
 
+     ((and (looking-at "while")
+           (save-excursion (forward-comment (- (point))) (eq (char-before) ?})))
+      (goto-char (match-end 0)) "r-while")
+
      ((looking-at "if[[:space:]]+case")
       (goto-char (match-end 0)) "if-case")
 
@@ -297,10 +305,6 @@
            ((equal tok "case")
             (if (swift-smie--case-signature-p)
                 "case" "ecase"))
-
-           ((equal tok "while")
-            (if (looking-at ".*?[^}]+{")
-                "while" "r-while"))
 
            ((equal tok "class")
             (if (looking-at "[[:space:]]*func")
@@ -366,15 +370,17 @@
      ((looking-back "if[[:space:]]+case" (line-beginning-position) t)
       (goto-char (match-beginning 0)) "if-case")
 
+     ((and (looking-back "while" (- (point) 5))
+           (save-excursion
+             (goto-char (match-beginning 0))
+             (forward-comment (- (point))) (eq (char-before) ?})))
+      (goto-char (match-beginning 0)) "r-while")
+
      (t (let ((tok (smie-default-backward-token)))
           (cond
            ((equal tok "case")
             (if (swift-smie--case-signature-p)
                 "case" "ecase"))
-
-           ((equal tok "while")
-            (if (looking-at "while.*?[^}]+{")
-                "while" "r-while"))
 
            ((equal tok "class")
             (if (looking-at "class[[:space:]]*func")

@@ -818,7 +818,7 @@ while foo < bar{
 }
 ")
 
-(check-indentation indents-repeat-while-statements
+(check-indentation indents-repeat-while-statements/1
                    "
 repeat {
 |foo
@@ -827,6 +827,19 @@ repeat {
 repeat {
     |foo
 } while true
+")
+
+(check-indentation indents-repeat-while-statements/2
+                   "
+repeat {
+    foo
+} while true
+    |func bar() {}
+" "
+repeat {
+    foo
+} while true
+|func bar() {}
 ")
 
 (check-indentation indents-import-statements/1
