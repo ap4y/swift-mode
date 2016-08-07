@@ -67,8 +67,6 @@ values of customisable variables."
            (search-forward "|")
            (delete-char -1)
            (swift-mode)
-           (setq smie-forward-token-function 'swift-smie--forward-token-debug)
-           (setq smie-backward-token-function 'swift-smie--backward-token-debug)
            (indent-according-to-mode)
 
            (should (equal expected-state (buffer-string)))
@@ -225,6 +223,54 @@ if foo {
     if true {
         |foo
     }
+}
+")
+
+(check-indentation indent-if-body-with-availability-macro
+  "
+if #available(iOS 9, *) {
+|return nil
+}
+" "
+if #available(iOS 9, *) {
+    |return nil
+}
+")
+
+(check-indentation indent-if-statement-with-pattern-matching/1
+  "
+if case 0...225 = numberOfTaylorSwiftSongsFavorited {
+|print()
+}
+" "
+if case 0...225 = numberOfTaylorSwiftSongsFavorited {
+    |print()
+}
+")
+
+(check-indentation indent-if-statement-with-pattern-matching/2
+  "
+if case .DOB(let otherBday) = signUpFormField
+        where taylorSwiftsBday.compare(otherBday) == .OrderedDescending {
+|print()
+}
+" "
+if case .DOB(let otherBday) = signUpFormField
+        where taylorSwiftsBday.compare(otherBday) == .OrderedDescending {
+    |print()
+}
+")
+
+(check-indentation indent-if-statement-with-pattern-matching/3
+  "
+if case .DOB(let otherBday) = signUpFormField
+|where taylorSwiftsBday.compare(otherBday) == .OrderedDescending {
+    print()
+}
+" "
+if case .DOB(let otherBday) = signUpFormField
+        |where taylorSwiftsBday.compare(otherBday) == .OrderedDescending {
+    print()
 }
 ")
 
@@ -411,6 +457,18 @@ case y:
 }
 ")
 
+(check-indentation indents-case-statement-bodies/7
+                   "
+switch x {
+case y,z:
+      |x
+}
+" "
+switch x {
+case y,z:
+    |x
+}
+")
 
 (check-indentation indents-default-statements-to-same-level-as-enclosing-switch/1
   "
@@ -632,6 +690,53 @@ enum Foo: Bar {
 }
 ")
 
+(check-indentation indents-case-statements-in-enum/4
+                   "
+enum Foo {
+    case A(Int, [Int : String]), B, C
+                                |func foo() {
+    }
+}
+" "
+enum Foo {
+    case A(Int, [Int : String]), B, C
+    |func foo() {
+    }
+}
+")
+
+(check-indentation indents-declaration-statements-in-enum/5
+                   "
+enum OrderViewTableTakeAwayCells: Int {
+    case DeliveryCell = 0,
+                    |nameCell = 1,
+         emailCell = 2,
+         phoneCell = 3,
+         couponCodeCell = 4,
+         lastCellIndex
+}
+" "
+enum OrderViewTableTakeAwayCells: Int {
+    case DeliveryCell = 0,
+         |nameCell = 1,
+         emailCell = 2,
+         phoneCell = 3,
+         couponCodeCell = 4,
+         lastCellIndex
+}
+")
+
+(check-indentation indents-case-statements-in-enum/6
+                   "
+public enum Foo {
+       |case A
+}
+" "
+public enum Foo {
+    |case A
+}
+")
+
 (check-indentation indents-declaration-statements-in-enum/1
                    "
 enum Foo: Bar {
@@ -680,6 +785,28 @@ for var index = 0; index < 3; ++index  {
 }
 ")
 
+(check-indentation indents-for-statements/4
+  "
+for index in 0..<SecTrustGetCertificateCount(trust) {
+        |let foo bar
+}
+" "
+for index in 0..<SecTrustGetCertificateCount(trust) {
+    |let foo bar
+}
+")
+
+(check-indentation indents-for-statements-with-pattern-matching/1
+  "
+for case .Food(let value) in enumValues {
+|print(value)
+}
+" "
+for case .Food(let value) in enumValues {
+    |print(value)
+}
+")
+
 (check-indentation indents-while-statements
   "
 while foo < bar{
@@ -689,6 +816,30 @@ while foo < bar{
 while foo < bar{
     |foo
 }
+")
+
+(check-indentation indents-repeat-while-statements/1
+                   "
+repeat {
+|foo
+} while true
+" "
+repeat {
+    |foo
+} while true
+")
+
+(check-indentation indents-repeat-while-statements/2
+                   "
+repeat {
+    foo
+} while true
+    |func bar() {}
+" "
+repeat {
+    foo
+} while true
+|func bar() {}
 ")
 
 (check-indentation indents-import-statements/1
@@ -794,19 +945,23 @@ class Foo:
 (check-indentation indents-class-declaration/7
                    "
 class Foo: Bar<A, B,
-|C>
+|C> {
+}
 " "
 class Foo: Bar<A, B,
-               |C>
+               |C> {
+}
 ")
 
 (check-indentation indents-class-declaration/8
                    "
 class Foo<A: B<C>>:
-                   |Bar
+                   |Bar {
+}
 " "
 class Foo<A: B<C>>:
-    |Bar
+    |Bar {
+}
 ")
 
 (check-indentation indents-class-declaration/9
@@ -837,6 +992,38 @@ class Foo: Foo,
       Bar2,
       Baz {
 |}
+")
+
+(check-indentation indents-class-declaration/11
+                   "
+@Foo public class Foo {
+     a
+     |}
+" "
+@Foo public class Foo {
+     a
+|}
+")
+
+(check-indentation indents-class-declaration/12
+                   "
+@objc
+class ExampleClass: NSObject {
+    var enabled : Bool {
+    |@objc(isEnabled) get {
+            // Return the appropriate value
+        }
+    }
+}
+" "
+@objc
+class ExampleClass: NSObject {
+    var enabled : Bool {
+        |@objc(isEnabled) get {
+            // Return the appropriate value
+        }
+    }
+}
 ")
 
 (check-indentation indents-public-class-declaration/1
@@ -1033,55 +1220,77 @@ class Foo: Bar {
 }
 ")
 
+(check-indentation indents-func-declaration/13
+                   "
+public func upload(
+    multipartFormData: MultipartFormData -> Void,
+        |encodingCompletion: (MultipartFormDataEncodingResult -> Void)?) {}
+" "
+public func upload(
+    multipartFormData: MultipartFormData -> Void,
+    |encodingCompletion: (MultipartFormDataEncodingResult -> Void)?) {}
+")
+
+(check-indentation indents-func-declaration/14
+                   "
+public func foo()
+        |-> Self {
+}
+" "
+public func foo()
+    |-> Self {
+}
+")
+
 (check-indentation indents-protocol-declaration/1
                    "
 protocol Foo {
-    func foo()
-|func bar()
+    func foo() {}
+|func bar() {}
 }
 " "
 protocol Foo {
-    func foo()
-    |func bar()
+    func foo() {}
+    |func bar() {}
 }
 ")
 
 (check-indentation indents-protocol-declaration/2
                    "
 protocol Foo {
-    func foo() -> Foo
-|func bar() -> Bar
+    func foo() -> Foo {}
+|func bar() -> Bar {}
 }
 " "
 protocol Foo {
-    func foo() -> Foo
-    |func bar() -> Bar
+    func foo() -> Foo {}
+    |func bar() -> Bar {}
 }
 ")
 
 (check-indentation indents-protocol-declaration/3
                    "
 protocol Foo {
-    func foo() -> Foo<A>
-|func bar() -> Bar<A>
+    func foo() -> Foo<A> {}
+|func bar() -> Bar<A> {}
 }
 " "
 protocol Foo {
-    func foo() -> Foo<A>
-    |func bar() -> Bar<A>
+    func foo() -> Foo<A> {}
+    |func bar() -> Bar<A> {}
 }
 ")
 
 (check-indentation indents-protocol-declaration/4
                    "
 protocol Foo {
-    func foo() -> [A]
-|func bar() -> [A]
+    func foo() -> [A] {}
+|func bar() -> [A] {}
 }
 " "
 protocol Foo {
-    func foo() -> [A]
-    |func bar() -> [A]
+    func foo() -> [A] {}
+    |func bar() -> [A] {}
 }
 ")
 
@@ -1353,45 +1562,45 @@ let options = NSRegularExpressionOptions.CaseInsensitive &
 
 (check-indentation indents-multiline-expressions/9
                    "
-foo?[bar] +
-     |a
+let x = foo?[bar] +
+|a
 " "
-foo?[bar] +
-  |a
+let x = foo?[bar] +
+        |a
 ")
 
 (check-indentation indents-multiline-expressions/10
                    "
-foo?(bar) +
-     |a
+let x = foo?(bar) +
+|a
 " "
-foo?(bar) +
-  |a
+let x = foo?(bar) +
+        |a
 ")
 
 (check-indentation indents-multiline-expressions/11
                    "
 func a () {
-    a +
+    let x = a +
 |a
 }
 " "
 func a () {
-    a +
-      |a
+    let x = a +
+            |a
 }
 ")
 
 (check-indentation indents-multiline-expressions/12
                    "
 func a () {
-    a
+    let x = a
 |.a()
 }
 " "
 func a () {
-    a
-      |.a()
+    let x = a
+            |.a()
 }
 ")
 
@@ -1406,38 +1615,38 @@ if (a
 
 (check-indentation indents-multiline-expressions/14
                    "
-a ??
+let x = a ??
 |b
 " "
-a ??
-  |b
+let x = a ??
+        |b
 ")
 
 (check-indentation indents-multiline-expressions/15
                    "
-a as
+let x = a as
 |b
 " "
-a as
-  |b
+let x = a as
+        |b
 ")
 
 (check-indentation indents-multiline-expressions/16
                    "
-a as?
+let x = a as?
 |b
 " "
-a as?
-  |b
+let x = a as?
+        |b
 ")
 
 (check-indentation indents-multiline-expressions/17
                    "
-a is
+let x = a is
 |b
 " "
-a is
-  |b
+let x = a is
+        |b
 ")
 
 (check-indentation indents-multiline-expressions/18
@@ -1445,12 +1654,12 @@ a is
 CGPoint(x: aaaaaaaaaaaaaaa.x +
 |bbbbbbbbbbbbbbbb,
         y: aaaaaaaaaaaaaaa.y +
-           bbbbbbbbbbbbbbbb)
+        bbbbbbbbbbbbbbbb)
 " "
 CGPoint(x: aaaaaaaaaaaaaaa.x +
-           |bbbbbbbbbbbbbbbb,
+        |bbbbbbbbbbbbbbbb,
         y: aaaaaaaaaaaaaaa.y +
-           bbbbbbbbbbbbbbbb)
+        bbbbbbbbbbbbbbbb)
 ")
 
 (check-indentation indents-multiline-expressions/19
@@ -1519,6 +1728,15 @@ let foo =
     bar +
     |baz +
     a
+")
+
+(check-indentation indents-multiline-expressions/25
+                   "
+let foo
+    |(result, error) = responseSerializer.serializeResponse()
+" "
+let foo
+|(result, error) = responseSerializer.serializeResponse()
 ")
 
 (check-indentation indents-long-parameters/1
@@ -1674,6 +1892,15 @@ let foo = bar >
 typealias Foo = Bar<Foo.Baz, Foo>
 let foo = bar >
           |baz
+")
+
+(check-indentation indents-typealias-with-closure/1
+                   "
+public typealias Validation = (NSURLRequest, NSHTTPURLResponse) -> Bool
+    |bar
+" "
+public typealias Validation = (NSURLRequest, NSHTTPURLResponse) -> Bool
+|bar
 ")
 
 (check-indentation indents-multiline-operators-only-once/1
@@ -2084,15 +2311,15 @@ foo.bar(10,
 (check-indentation anonymous-function-as-a-argument/7
                    "
 foo.bar(10,
-        completionHandler: { (
-        |bar, baz) in
+        completionHandler: { (bar,
+|baz) in
             foo
         }
 )
 " "
 foo.bar(10,
-        completionHandler: { (
-            |bar, baz) in
+        completionHandler: { (bar,
+                              |baz) in
             foo
         }
 )
@@ -2272,6 +2499,165 @@ guard let x = y else {
 " "
 guard let x = y else {
     |return
+}
+")
+
+(check-indentation indents-type-casting-operators/1
+                   "
+let foo = Foo()
+    |isBar = baz
+" "
+let foo = Foo()
+|isBar = baz
+")
+
+(check-indentation indents-compiler-control-statements/1
+                   "
+#if os(iOS)
+    |import MobileCoreServices
+#elseif os(OSX)
+import CoreServices
+#else
+import Baz
+#endif
+" "
+#if os(iOS)
+|import MobileCoreServices
+#elseif os(OSX)
+import CoreServices
+#else
+import Baz
+#endif
+")
+
+(check-indentation indents-compiler-control-statements/2
+                   "
+#if os(iOS)
+import MobileCoreServices
+#elseif os(OSX)
+    |import CoreServices
+#else
+import Baz
+#endif
+" "
+#if os(iOS)
+import MobileCoreServices
+#elseif os(OSX)
+|import CoreServices
+#else
+import Baz
+#endif
+")
+
+(check-indentation indents-compiler-control-statements/3
+                   "
+#if os(iOS)
+import MobileCoreServices
+#elseif os(OSX)
+import CoreServices
+#else
+    |import Baz
+#endif
+" "
+#if os(iOS)
+import MobileCoreServices
+#elseif os(OSX)
+import CoreServices
+#else
+|import Baz
+#endif
+")
+
+(check-indentation indents-defer-statement/1
+                   "
+defer {
+|close(file)
+}
+" "
+defer {
+    |close(file)
+}
+")
+
+(check-indentation indents-do-statement/1
+                   "
+do {
+|try buyFavoriteSnack(foo, vendingMachine: vendingMachine)
+} catch VendingMachineError.InvalidSelection {
+    print()
+}
+" "
+do {
+    |try buyFavoriteSnack(foo, vendingMachine: vendingMachine)
+} catch VendingMachineError.InvalidSelection {
+    print()
+}
+")
+
+(check-indentation indents-do-statement/2
+                   "
+do {
+    try buyFavoriteSnack(foo, vendingMachine: vendingMachine)
+} catch VendingMachineError.InvalidSelection {
+|print()
+}
+" "
+do {
+    try buyFavoriteSnack(foo, vendingMachine: vendingMachine)
+} catch VendingMachineError.InvalidSelection {
+    |print()
+}
+")
+
+(check-indentation indents-do-statement/3
+                   "
+do {
+    try buyFavoriteSnack(foo, vendingMachine: vendingMachine)
+} catch VendingMachineError.OutOfStock where Foo {
+|print()
+}
+" "
+do {
+    try buyFavoriteSnack(foo, vendingMachine: vendingMachine)
+} catch VendingMachineError.OutOfStock where Foo {
+    |print()
+}
+")
+
+(check-indentation indents-do-statement/4
+                   "
+do {
+    try buyFavoriteSnack(foo, vendingMachine: vendingMachine)
+} catch VendingMachineError.InsufficientFunds(let coinsNeeded) {
+|print()
+}
+" "
+do {
+    try buyFavoriteSnack(foo, vendingMachine: vendingMachine)
+} catch VendingMachineError.InsufficientFunds(let coinsNeeded) {
+    |print()
+}
+")
+
+(check-indentation indents-extension-declaration/1
+                   "
+extension SomeType: SomeProtocol, AnotherProtocol {
+|foo
+}
+" "
+extension SomeType: SomeProtocol, AnotherProtocol {
+    |foo
+}
+")
+
+(check-indentation indents-extension-declaration/2
+                   "
+extension Bird where Self: Flyable {
+|var canFly: Bool { return true }
+}
+" "
+extension Bird where Self: Flyable {
+    |var canFly: Bool { return true }
 }
 ")
 

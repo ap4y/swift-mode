@@ -166,6 +166,8 @@ test will fail."
 (check-face enum/generic-parameter/has-type-face/3 font-lock-type-face "enum Name <{{T}}> {}")
 (check-face enum/generic-parameter/brackets-have-default-face/1 nil "enum N{{<}}T>")
 (check-face enum/generic-parameter/brackets-have-default-face/2 nil "enum N<T{{>}}")
+(check-face indirect-enum/has-keyword-face/1 font-lock-keyword-face "{{indirect}} enum T")
+(check-face indirect-enum/has-keyword-face/2 font-lock-keyword-face "{{indirect}} enum T")
 
 (check-face class/has-keyword-face/1 font-lock-keyword-face "{{class}} T")
 (check-face class/has-keyword-face/2 font-lock-keyword-face "{{class}} T")
@@ -204,8 +206,29 @@ test will fail."
 (check-face super/has-keyword-face/1 font-lock-keyword-face "{{super}}.foo")
 
 (check-face attributes/has-keyword-face/1 font-lock-keyword-face "{{@IBAction}} func")
+(check-face attributes/has-keyword-face/2 font-lock-keyword-face "{{@testable}} import")
 
 (check-face comments/nested-multiline-comments-has-comments-face/1 font-lock-comment-face "/*/* text */{{*/}}")
+
+(check-face type-casting/has-keyword-face/1 font-lock-keyword-face "foo {{as}} bar")
+(check-face type-casting/has-keyword-face/2 font-lock-keyword-face "foo {{is}} bar")
+(check-face type-casting/has-keyword-face/3 font-lock-keyword-face "foo {{as}}? bar")
+(check-face type-casting/has-keyword-face/4 font-lock-keyword-face "foo {{as}}! bar")
+
+(check-face compiler-control/has-keyword-face/1 font-lock-keyword-face "{{#if}} os(iOS)")
+(check-face compiler-control/has-keyword-face/2 font-lock-keyword-face "{{#elseif}} os(iOS)")
+(check-face compiler-control/has-keyword-face/3 font-lock-keyword-face "{{#else}}")
+(check-face compiler-control/has-keyword-face/4 font-lock-keyword-face "{{#endif}}")
+(check-face compiler-control/has-keyword-face/5 font-lock-keyword-face "if {{#available}}(iOS 9, *)")
+
+(check-face error-handling/has-keyword-face/1 font-lock-keyword-face "func vend(itemNamed name: String) {{throws}}")
+(check-face error-handling/has-keyword-face/2 font-lock-keyword-face "{{throw}} VendingMachineError.InvalidSelection")
+(check-face error-handling/has-keyword-face/3 font-lock-keyword-face "{{try}} buyFavoriteSnack()")
+(check-face error-handling/has-keyword-face/4 font-lock-keyword-face "if let data = {{try}}? fetchDataFromDisk() {}")
+(check-face error-handling/has-keyword-face/5 font-lock-keyword-face "let photo = {{try}}! loadImage()")
+(check-face error-handling/has-keyword-face/6 font-lock-keyword-face "{{catch}} VendingMachineError.InvalidSelection")
+(check-face error-handling/has-keyword-face/7 font-lock-keyword-face "{{defer}} { close(file) }")
+(check-face error-handling/has-keyword-face/8 font-lock-keyword-face "func vend(itemNamed name: String) {{rethrows}}")
 
 (provide 'font-lock-tests)
 

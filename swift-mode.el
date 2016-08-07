@@ -76,103 +76,75 @@
    (smie-merge-prec2s
     (smie-bnf->prec2
      '((id)
-       (type (type) (type "<T" types "T>") ("[" type "]"))
-       (types (type) (type "," type))
-
-       (class-decl-exp (id) (id ":" types))
-       (decl-exp (id) (id ":" type))
-       (decl-exps (decl-exp) (decl-exp "," decl-exp))
-
-       (assign-exp (decl-exp) (id "=" exp))
-
-       (decl (decl ";" decl))
-       (decl (let-decl) (var-decl))
-       (let-decl
-        ("let" decl-exp)
-        ("let" decl-exp "=" exp))
-       (var-decl
-        ("var" decl-exp)
-        ("var" decl-exp "=" exp))
-
-       (top-level-sts (top-level-st) (top-level-st ";" top-level-st))
-       (top-level-st
-        ("import" type)
-        (decl)
-        ("ACCESSMOD" "class" class-decl-exp "{" class-level-sts "}")
-        ("ACCESSMOD" "protocol" class-decl-exp "{" protocol-level-sts "}")
-        )
-
-       (class-level-sts (class-level-st) (class-level-st ";" class-level-st))
-       (class-level-st
-        (decl)
-        (func))
-
-       (protocol-level-sts (protocol-level-st) (protocol-level-st ";" protocol-level-st))
-       (protocol-level-st
-        (decl)
-        (func-decl))
-
-       (func-body (insts) ("return" exp))
-       (func (func-decl "{" func-body "}"))
-       (func-decl ("DECSPEC" "func" func-header)
-                  (func-decl "->" type))
-       (func-header (id "(" func-params ")"))
-       (func-param (decl-exp) (decl-exp "=" id) ("..."))
-       (func-params (func-param "," func-param))
-
-       (insts (inst) (insts ";" insts))
-       (inst (decl)
-             (exp "=" exp)
-             (in-exp)
-             (dot-exp)
-             (dot-exp "{" closure "}")
-             (method-call)
-             (method-call "{" closure "}")
-             ("enum" decl-exp "{" enum-body "}")
+       (inst (if-clause)
+             ("guard" exp "else" "{" insts "}")
              ("switch" exp "{" switch-body "}")
-             (if-clause)
-             (guard-statement)
+             ("enum" exp "{" insts "}")
+             ("ecase" exps)
              ("for" for-head "{" insts "}")
-             ("while" exp "{" insts "}"))
+             ("for-case" exp "{" insts "}")
+             ("while" exp "{" insts "}")
+             (repeat-clause)
+             ("class" exps "{" insts "}")
+             ("extension" exps "{" insts "}")
+             ("func" exp "{" insts "}")
+             ("func" exp "->" exps "{" insts "}")
+             ("protocol" exp "{" insts "}")
+             ("defer" "{" insts "}")
+             (do-clause)
+             (compiler-control)
+             ("let" exp)
+             ("var" exp)
+             ("return" exp)
+             (exp "{" closure-exp "}")
+             (exp))
+       (insts (insts ";" insts) (inst))
+       (exp ("<T" exps "T>")
+            (exp "." id)
+            (id ":" exp)
+            (exp "=" exp)
+            ("(" func-args ")"))
+       (exps (exps "," exps) (exp))
 
-       (dot-exp (id "." id))
+       (if-clause (if-clause "elseif" exp "{" insts "}")
+                  (if-clause "else" "{" insts "}")
+                  (if-body))
+       (if-body ("if" exp "{" insts "}") ("if-case" exp "{" insts "}"))
 
-       (method-call (dot-exp "(" method-args ")"))
-       (method-args (method-arg) (method-args "," method-args))
-       (method-arg (id "{" closure "}") (exp))
+       (cc-body-else (insts) (cc-body-else "#else" insts))
+       (cc-body (cc-body-else) (cc-body "#elseif" cc-body))
+       (compiler-control ("#if" cc-body "#endif"))
 
-       (exp ("[" decl-exps "]"))
-       (in-exp (id "in" exp))
-       (guard-exp (exp "where" exp))
+       (switch-body (switch-body "case-;" switch-body)
+                    ("case" exps "case-:" insts)
+                    ("default" "case-:" insts))
 
-       (enum-case ("ecase" assign-exp)
-                  ("ecase" "(" type ")"))
-       (enum-cases (enum-case) (enum-case ";" enum-case))
-       (enum-body (enum-cases) (insts))
+       (enum-body (enum-body ";" enum-body) (inst) ("ecase" exps))
 
-       (case-exps (exp)
-                  (guard-exp)
-                  (case-exps "," case-exps))
-       (case (case-exps "case-:" insts))
-       (switch-body (case) (case "case" case))
+       (for-head (exp) (for-head ";" for-head) (exp "in" exp))
 
-       (for-head (in-exp) (op-exp) (for-head ";" for-head))
+       (do-clause (do-clause "catch" exp "{" insts "}")
+                  (do-body))
+       (do-body ("do" "{" insts "}"))
 
-       (guard-conditional (exp) (let-decl) (var-decl))
-       (guard-statement ("guard" guard-conditional "elseguard" "{" insts "}"))
+       (repeat-clause (repeat-clause "r-while" exp)
+                      (repeat-body))
+       (repeate-body ("repeat" "{" insts "}"))
 
-       (if-conditional (exp) (let-decl))
-       (if-body ("if" if-conditional "{" insts "}"))
-       (if-clause (if-body)
-                  (if-body "elseif" if-conditional "{" insts "}")
-                  (if-body "else" "{" insts "}"))
+       (closure-exp (insts) (closure-signature "closure-in" insts)
+                    (closure-signature "->" id "closure-in" insts))
+       (closure-signature (exp) ("closure-(" exps "closure-)") ("[" exps "]"))
 
-       (closure (insts) (exp "in" insts) (exp "->" id "in" insts)))
+       (func-args (func-args "," func-args)
+                  (id ":" "closure-{" closure-exp "closure-}")
+                  (exp)))
      ;; Conflicts
-     '((nonassoc "{") (assoc "in") (assoc ",") (assoc ";") (right "=") (right ":"))
-     '((assoc "in") (assoc "where"))
-     '((assoc ";") (assoc "ecase"))
-     '((assoc "case")))
+     '((nonassoc "{") (assoc ";"))
+     '((assoc ","))
+     '((assoc "case-;"))
+     '((assoc "#elseif"))
+     '((right "=") (assoc ".") (assoc ":") (assoc ","))
+     )
 
     (smie-precs->prec2
      '(
@@ -208,18 +180,19 @@
    "*" "/" "%" "&*" "&/" "&%" "&"
    "<<" ">>" "??"))
 
+;; This regex is used for deriving implicit semicolon
+;; in multi-line expressions. We want to exclude some operator
+;; from the match when they are a part of the word,
+;; for example isValid
 (defvar swift-smie--operators-regexp
-  (regexp-opt swift-smie--operators))
+  (concat (regexp-opt swift-smie--operators) "\\($\\|[[:space:]]\\)"))
 
-(defvar swift-smie--decl-specifier-regexp
-  "\\(?1:mutating\\|override\\|static\\|unowned\\|weak\\)")
-
-(defvar swift-smie--access-modifier-regexp
-  (regexp-opt '("private" "public" "internal")))
 
 (defun swift-smie--implicit-semi-p ()
   (save-excursion
-    (not (or (memq (char-before) '(?\{ ?\[ ?, ?. ?: ?= ?\())
+    (skip-chars-backward " \t")
+    (not (or (bolp)
+             (memq (char-before) '(?\{ ?\[ ?, ?. ?: ?= ?\())
              ;; Checking for operators form for "?" and "!",
              ;; they can be a part of the type.
              ;; Special case: is? and as? are operators.
@@ -244,79 +217,105 @@
              ))))
 
 (defun swift-smie--forward-token-debug ()
-  (let ((token (swift-smie--forward-token)))
-    (unless (equal token "")
-      (cl-assert (equal token
-                     (save-excursion (swift-smie--backward-token))) t))
+  (let ((op (point))
+        (token (swift-smie--forward-token)))
+    (message "forward: %s -> %s = %s" op (point) token)
     token
     ))
 
 (defun swift-smie--backward-token-debug ()
-  (let ((token (swift-smie--backward-token)))
-    (unless (equal token "")
-      (cl-assert (equal token
-                     (save-excursion (swift-smie--forward-token))) t))
+  (let ((op (point))
+        (token (swift-smie--backward-token)))
+    (message "backward: %s -> %s = %s" op (point) token)
       token
     ))
 
-(defconst swift-smie--lookback-max-lines -2
-  "Max number of lines 'looking-back' allowed to scan.
-In some cases we can't avoid reverse lookup and this operation can be slow.
-We try to constraint those lookups by reasonable number of lines.")
+(defvar swift-smie--case-exp-regexp
+  "\\(case.*?[^{}:=]+\\|default[[:space:]]*\\):")
+
+(defun swift-smie--case-signature-p ()
+  (save-excursion
+    (up-list 1) (backward-list 1)
+    (not (looking-back "enum.*" (line-beginning-position -1)))))
+
+(defun swift-smie--closure-signature-p ()
+    (let ((tok (smie-default-forward-token)))
+      (or (equal tok "in")
+          (and (equal tok "->")
+               (equal (smie-default-forward-token) "in")))))
 
 (defun swift-smie--forward-token ()
   (skip-chars-forward " \t")
   (cond
-   ((and (looking-at "\n\\|\/\/") (swift-smie--implicit-semi-p))
+   ((and (looking-at "\n\\|\/\/")
+         (swift-smie--implicit-semi-p))
     (if (eolp) (forward-char 1) (forward-comment 1))
-    ";")
+    (skip-chars-forward " \t")
+    (if (looking-at swift-smie--case-exp-regexp)
+        "case-;" ";"))
    (t
-    (forward-comment (point))
+    (forward-comment (point-max))
     (cond
-   ((looking-at "{") (forward-char 1) "{")
-   ((looking-at "}") (forward-char 1) "}")
+     ((and (looking-at "{")
+           (save-excursion (forward-comment (- 1)) (eq (char-before) ?:)))
+      (forward-char 1) "closure-{")
+     ((looking-at "{") (forward-char 1) "{")
 
-   ((looking-at ",") (forward-char 1) ",")
-   ((looking-at ":") (forward-char 1)
-    ;; look-back until "case", "default", ":", "{", ";"
-    (if (looking-back "\\(case[\n\t ][^:{;]+\\|default[\n\t ]*\\):")
-        "case-:"
-      ":"))
+     ((looking-at "}") (forward-char 1)
+      (if (save-excursion  (forward-comment 1)
+                           (looking-at ")")) "closure-}" "}"))
 
-   ((looking-at "->") (forward-char 2) "->")
+     ((and (looking-at "(")
+           (save-excursion (forward-list 1) (swift-smie--closure-signature-p)))
+      (forward-char 1) "closure-(")
+     ((and (looking-at ")")
+           (save-excursion (forward-char 1) (swift-smie--closure-signature-p)))
+      (forward-char 1) "closure-)")
 
-   ((looking-at "<") (forward-char 1)
-    (if (looking-at "[[:upper:]]") "<T" "<"))
+     ((looking-at "->") (forward-char 2) "->")
 
-   ((looking-at ">[?!]?")
-    (goto-char (match-end 0))
-    (if (looking-back "[[:space:]]>" 2 t) ">" "T>"))
+     ((looking-at ":") (forward-char 1)
+      (if (looking-back swift-smie--case-exp-regexp)
+          "case-:" ":"))
 
-   ((looking-at swift-smie--decl-specifier-regexp)
-    (goto-char (match-end 1)) "DECSPEC")
+     ((looking-at "[.]\\{2\\}<") (forward-char 3) "..<")
 
-   ((looking-at swift-smie--access-modifier-regexp)
-    (goto-char (match-end 0)) "ACCESSMOD")
+     ((looking-at "<") (forward-char 1)
+      (if (looking-at "[[:upper:]]") "<T" "<"))
 
-   ((looking-at "\\<default\\>")
-    (goto-char (match-end 0)) "case")
+     ((looking-at ">[?!]?")
+      (goto-char (match-end 0))
+      (if (looking-back "[[:space:]]>" 2 t) ">" "T>"))
 
-   ((looking-at "else if")
-    (goto-char (match-end 0)) "elseif")
+     ((looking-at "else[[:space:]]+if")
+      (goto-char (match-end 0)) "elseif")
 
-   (t (let ((tok (smie-default-forward-token)))
-        (cond
-         ((equal tok "case")
-          (if (looking-at "\\([\n\t ]\\|.\\)+?\\(where.*[,]\\|:\\)")
-              "case"
-            "ecase"))
-         ((equal tok "else")
-          (if (looking-back "\\(guard.*\\)" (line-beginning-position) t)
-              "elseguard"
-            "else"))
-         (t tok))))
-   ))
-   ))
+     ((looking-at "for[[:space:]]+case")
+      (goto-char (match-end 0)) "for-case")
+
+     ((and (looking-at "while")
+           (save-excursion (forward-comment (- (point))) (eq (char-before) ?})))
+      (goto-char (match-end 0)) "r-while")
+
+     ((looking-at "if[[:space:]]+case")
+      (goto-char (match-end 0)) "if-case")
+
+     (t (let ((tok (smie-default-forward-token)))
+          (cond
+           ((equal tok "case")
+            (if (swift-smie--case-signature-p)
+                "case" "ecase"))
+
+           ((equal tok "class")
+            (if (looking-at "[[:space:]]*func")
+                "f-class" "class"))
+
+           ((equal tok "in")
+            (if (looking-at "[[:space:]]*\\(\/\/.*\\)*\n")
+                "closure-in" "in"))
+
+           (t tok))))
+     ))))
 
 (defun swift-smie--backward-token ()
   (let ((pos (point)))
@@ -324,20 +323,37 @@ We try to constraint those lookups by reasonable number of lines.")
     (cond
      ((and (> pos (line-end-position))
            (swift-smie--implicit-semi-p))
-      ";")
+      (if (save-excursion
+            (forward-comment 1)
+            (looking-at swift-smie--case-exp-regexp))
+          "case-;" ";"))
 
-     ((eq (char-before) ?\{) (backward-char 1) "{")
+     ((eq (char-before) ?\{) (backward-char 1)
+      (if (save-excursion (forward-comment (- 1)) (eq (char-before) ?:))
+          "closure-{" "{"))
+
+     ((and (eq (char-before) ?\})
+           (save-excursion (forward-comment 1) (looking-at ")")))
+      (backward-char 1) "closure-}")
      ((eq (char-before) ?\}) (backward-char 1) "}")
 
-     ((eq (char-before) ?,) (backward-char 1) ",")
-     ((eq (char-before) ?:) (backward-char 1)
-      ;; look-back until "case", "default", ":", "{", ";"
-      (if (looking-back "\\(case[\n\t ][^:{;]+\\|default[\n\t ]*\\)")
-          "case-:"
-        ":"))
+     ((and (eq (char-before) ?\()
+           (save-excursion (backward-char 1) (forward-list 1)
+                           (swift-smie--closure-signature-p)))
+      (backward-char 1)  "closure-(")
+     ((and (eq (char-before) ?\))
+           (save-excursion (swift-smie--closure-signature-p)))
+      (backward-char 1) "closure-)")
 
      ((looking-back "->" (- (point) 2) t)
       (goto-char (match-beginning 0)) "->")
+
+     ((eq (char-before) ?:) (backward-char 1)
+      (if (looking-back (substring swift-smie--case-exp-regexp 0
+                                   (- (length swift-smie--case-exp-regexp) 1)))
+          "case-:" ":"))
+
+     ((looking-back "[.]\\{2\\}<" (- (point) 3)) (backward-char 3) "..<")
 
      ((eq (char-before) ?<) (backward-char 1)
       (if (looking-at "<[[:upper:]]") "<T" "<"))
@@ -345,32 +361,35 @@ We try to constraint those lookups by reasonable number of lines.")
       (goto-char (match-beginning 0))
       (if (looking-back "[[:space:]]" 1 t) ">" "T>"))
 
-     ((looking-back (regexp-opt swift-mode--type-decl-keywords) (- (point) 9) t)
-      (goto-char (match-beginning 0))
-      (match-string-no-properties 0))
-
-     ((looking-back swift-smie--decl-specifier-regexp (- (point) 8) t)
-      (goto-char (match-beginning 1)) "DECSPEC")
-
-     ((looking-back swift-smie--access-modifier-regexp (- (point) 8) t)
-      (goto-char (match-beginning 0)) "ACCESSMOD")
-
-     ((looking-back "\\<default\\>" (- (point) 9) t)
-      (goto-char (match-beginning 0)) "case")
-
-     ((looking-back "else if" (- (point) 7) t)
+     ((looking-back "else[[:space:]]+if" (line-beginning-position) t)
       (goto-char (match-beginning 0)) "elseif")
+
+     ((looking-back "for[[:space:]]+case" (line-beginning-position) t)
+      (goto-char (match-beginning 0)) "for-case")
+
+     ((looking-back "if[[:space:]]+case" (line-beginning-position) t)
+      (goto-char (match-beginning 0)) "if-case")
+
+     ((and (looking-back "while" (- (point) 5))
+           (save-excursion
+             (goto-char (match-beginning 0))
+             (forward-comment (- (point))) (eq (char-before) ?})))
+      (goto-char (match-beginning 0)) "r-while")
 
      (t (let ((tok (smie-default-backward-token)))
           (cond
            ((equal tok "case")
-            (if (looking-at "\\([\n\t ]\\|.\\)+?\\(where.*[,]\\|:\\)")
-                "case"
-              "ecase"))
-           ((equal tok "else")
-            (if (looking-back "\\(guard.*\\)" (line-beginning-position) t)
-                "elseguard"
-              "else"))
+            (if (swift-smie--case-signature-p)
+                "case" "ecase"))
+
+           ((equal tok "class")
+            (if (looking-at "class[[:space:]]*func")
+                "f-class" "class"))
+
+           ((equal tok "in")
+            (if (looking-at "in[[:space:]]*\\(\/\/.*\\)*\n")
+                "closure-in" "in"))
+
            (t tok))))
      )))
 
@@ -378,21 +397,55 @@ We try to constraint those lookups by reasonable number of lines.")
   (pcase (cons kind token)
     (`(:elem . basic) swift-indent-offset)
 
-    (`(:after . ":") 0)
+    ;; Custom case offset
+    (`(:before . ,(or "case" "default"))
+     (if (smie-rule-parent-p "switch")
+         (smie-rule-parent swift-indent-switch-case-offset)))
+
+    ;; Custom comma offset
+    (`(:before . ",")
+     (cond
+      ((and swift-indent-hanging-comma-offset (smie-rule-parent-p "class" "case"))
+       (smie-rule-parent swift-indent-hanging-comma-offset))
+      ;; Closure with return type bound to function argument
+      ((smie-rule-parent-p "->") (smie-rule-parent))))
+
+    ;; Reset offset applied by modifiers
+    (`(:before . ,(or "class" "func" "protocol" "enum"))
+     (if (not (smie-rule-bolp)) (smie-rule-parent)))
+
+    ;; Hanging collection declaration
+    (`(:before . "[")
+     (if (and (smie-rule-hanging-p)
+              (smie-rule-parent-p "let" "var"))
+         (smie-rule-parent)))
+
+    ;; Nested code block or closures
+    (`(:before . "{")
+     (if (smie-rule-parent-p "{")
+         (smie-rule-parent swift-indent-offset)))
+
+    ;; Arguments indentation
+    (`(:after . "(") (if (not (smie-rule-hanging-p)) 1))
+    (`(:before . "(")
+     (if (not (smie-rule-bolp))
+         (if (smie-rule-parent-p "func")
+             (smie-rule-parent (- swift-indent-offset))
+           (smie-rule-parent))))
+
+    ;; Closure indentation
+    (`(:after . "closure-{") swift-indent-offset)
+    (`(:before . "closure-in") (smie-rule-parent swift-indent-offset))
+
     (`(:before . ":")
      (cond
       ;; Rule for ternary operator in
       ;; assignment expression.
       ((and (smie-rule-parent-p "?") (smie-rule-bolp)) 0)
-      ((smie-rule-parent-p ",") (smie-rule-parent swift-indent-offset))
       ;; Rule for the class definition.
+      ;; class Foo:
+      ;;    Foo, Bar, Baz {
       ((smie-rule-parent-p "class") (smie-rule-parent swift-indent-offset))))
-
-    ;; Indentation rules for switch statements
-    (`(:before . "case")
-     (if (smie-rule-parent-p "{")
-         (smie-rule-parent swift-indent-switch-case-offset)))
-    (`(:before . "case-:") (smie-rule-parent swift-indent-offset))
 
     ;; Apply swift-indent-multiline-statement-offset only if
     ;; - if is a first token on the line
@@ -402,51 +455,28 @@ We try to constraint those lookups by reasonable number of lines.")
            (+ swift-indent-offset swift-indent-multiline-statement-offset)
          swift-indent-multiline-statement-offset)))
 
+    ;; Closure with return type bound to type or variable
+    (`(:before . ";")
+     (if (smie-rule-parent-p "->") (smie-rule-parent)))
+
+    ;; return type at the beginning of the line
+    (`(:before . "->")
+     (if (smie-rule-bolp) (smie-rule-parent swift-indent-offset)))
+
+    ;; Compiler control statement
+    (`(:before . ,(or "#elseif" "#else")) (smie-rule-parent))
+    (`(:after . ";")
+     (if (smie-rule-parent-p "#if" "#else" "#elseif")
+         (smie-rule-parent)))
+
     ;; Apply swift-indent-multiline-statement-offset if
     ;; operator is the last symbol on the line
     (`(:after . ,(pred (lambda (token)
-                          (member token swift-smie--operators))))
+                         (member token swift-smie--operators))))
      (when (and (smie-rule-hanging-p)
                 (not (apply 'smie-rule-parent-p
-                            (append swift-smie--operators '("?" ":" "=")))))
-       swift-indent-multiline-statement-offset
-       ))
-
-    (`(:before . ",")
-     (if (and swift-indent-hanging-comma-offset (smie-rule-parent-p "class" "case"))
-         (smie-rule-parent swift-indent-hanging-comma-offset)))
-
-    ;; Disable unnecessary default indentation for
-    ;; "func" and "class" keywords
-    (`(:after . ,(or `"func" `"class")) (smie-rule-parent))
-
-    ;; "in" token in closure
-    (`(:after . "in")
-     (if (smie-rule-parent-p "{")
-         (smie-rule-parent swift-indent-offset)
-       (smie-rule-parent 0)))
-
-    (`(:after . "(")
-     (cond
-      ((smie-rule-parent-p "(") 0)
-      ((and (smie-rule-parent-p "." "func")
-            (not (smie-rule-hanging-p))) 1)
-      (t (smie-rule-parent swift-indent-offset))))
-
-    (`(:before . "(")
-     (cond
-      ((smie-rule-next-p "[") (smie-rule-parent))
-      ;; Custom indentation for method arguments
-      ((smie-rule-parent-p "." "func") (smie-rule-parent))))
-
-    (`(:before . "[")
-     (cond
-      ((smie-rule-prev-p "->") swift-indent-offset)
-      ((smie-rule-parent-p "[") (smie-rule-parent swift-indent-offset))
-      ((smie-rule-parent-p "{") nil)
-      ((smie-rule-parent-p "class-{") nil)
-      (t (smie-rule-parent))))
-    (`(:after . "->") (smie-rule-parent swift-indent-offset))
+                            (append swift-smie--operators '("?" ":" "=" "," "(")))))
+       swift-indent-multiline-statement-offset))
     ))
 
 ;;; Font lock
@@ -468,7 +498,9 @@ We try to constraint those lookups by reasonable number of lines.")
 
 (defvar swift-mode--statement-keywords
   '("break" "case" "continue" "default" "do" "else" "fallthrough"
-    "if" "in" "for" "return" "switch" "where" "while" "guard"))
+    "if" "in" "for" "return" "switch" "where" "repeat" "while" "guard"
+    "as" "is" "#if" "#elseif" "#else" "#endif" "throws" "throw" "try"
+    "catch" "defer" "indirect" "#available" "rethrows"))
 
 (defvar swift-mode--contextual-keywords
   '("associativity" "didSet" "get" "infix" "inout" "left" "mutating" "none"
@@ -558,7 +590,7 @@ We try to constraint those lookups by reasonable number of lines.")
     ;;
     ;; Use string face for attribute name.
     (,(rx (or bol space)(group "@" (+ word)) eow)
-     1 font-lock-string-face)
+     1 font-lock-keyword-face)
 
     ;; Imported modules
     ;;
@@ -766,6 +798,8 @@ You can send text to the REPL process from other buffers containing source.
     (modify-syntax-entry ?? "_" table)
     (modify-syntax-entry ?! "_" table)
     (modify-syntax-entry ?: "." table)
+    (modify-syntax-entry ?# "w" table)
+    (modify-syntax-entry ?@ "w" table)
 
     ;; Comments
     (modify-syntax-entry ?/  ". 124b" table)
