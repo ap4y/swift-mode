@@ -2388,6 +2388,26 @@ foo.bar(10,
 )
 ")
 
+(check-indentation anonymous-function-as-a-argument/11
+                   "
+UIView.transitionWithView(animations: { self!.imageView.image = image },
+                                        |completion: nil)
+" "
+UIView.transitionWithView(animations: { self!.imageView.image = image },
+                          |completion: nil)
+")
+
+(check-indentation anonymous-function-as-a-argument/12
+                   "
+UIView.transitionWithView(animations: {
+                              self.imageView.image = image
+                              |}, completion: nil)
+" "
+UIView.transitionWithView(animations: {
+                              self.imageView.image = image
+                          |}, completion: nil)
+")
+
 (check-indentation trailing-closure/1
                    "
 a(){

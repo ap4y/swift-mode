@@ -263,7 +263,7 @@
 
      ((looking-at "}") (forward-char 1)
       (if (save-excursion  (forward-comment 1)
-                           (looking-at ")")) "closure-}" "}"))
+                           (looking-at ")\\|,")) "closure-}" "}"))
 
      ((and (looking-at "(")
            (save-excursion (forward-list 1) (swift-smie--closure-signature-p)))
@@ -333,7 +333,7 @@
           "closure-{" "{"))
 
      ((and (eq (char-before) ?\})
-           (save-excursion (forward-comment 1) (looking-at ")")))
+           (save-excursion (forward-comment 1) (looking-at ")\\|,")))
       (backward-char 1) "closure-}")
      ((eq (char-before) ?\}) (backward-char 1) "}")
 
@@ -408,7 +408,9 @@
       ((and swift-indent-hanging-comma-offset (smie-rule-parent-p "class" "case"))
        (smie-rule-parent swift-indent-hanging-comma-offset))
       ;; Closure with return type bound to function argument
-      ((smie-rule-parent-p "->") (smie-rule-parent))))
+      ((smie-rule-parent-p "->") (smie-rule-parent))
+      ;; Function calls with multiple closures
+      ((smie-rule-parent-p "closure-{") (smie-rule-parent))))
 
     ;; Reset offset applied by modifiers
     (`(:before . ,(or "class" "func" "protocol" "enum"))
