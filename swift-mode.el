@@ -96,13 +96,13 @@
              ("let" exp)
              ("var" exp)
              ("return" exp)
-             (exp "{" closure-exp "}")
              (exp))
        (insts (insts ";" insts) (inst))
        (exp ("<T" exps "T>")
             (exp "." id)
             (id ":" exp)
             (exp "=" exp)
+            (closure-arg)
             ("(" func-args ")"))
        (exps (exps "," exps) (exp))
 
@@ -131,12 +131,13 @@
                       (repeat-body))
        (repeate-body ("repeat" "{" insts "}"))
 
+       (closure-arg ("closure-{" closure-exp "closure-}"))
        (closure-exp (insts) (closure-signature "closure-in" insts)
                     (closure-signature "->" id "closure-in" insts))
        (closure-signature (exp) ("closure-(" exps "closure-)") ("[" exps "]"))
 
        (func-args (func-args "," func-args)
-                  (id ":" "closure-{" closure-exp "closure-}")
+                  (id ":" closure-arg)
                   (exp)))
      ;; Conflicts
      '((nonassoc "{") (assoc ";"))
@@ -257,13 +258,15 @@
     (forward-comment (point-max))
     (cond
      ((and (looking-at "{")
-           (save-excursion (forward-comment (- 1)) (eq (char-before) ?:)))
+           (save-excursion (forward-comment (- 1))
+                           (or (looking-back "(\\|:" 1)
+                               (looking-back "^\s*\\..*" (line-beginning-position)))))
       (forward-char 1) "closure-{")
      ((looking-at "{") (forward-char 1) "{")
 
      ((looking-at "}") (forward-char 1)
       (if (save-excursion  (forward-comment 1)
-                           (looking-at ")\\|,")) "closure-}" "}"))
+                           (looking-at ")\\|,\\|\\.")) "closure-}" "}"))
 
      ((and (looking-at "(")
            (save-excursion (forward-list 1) (swift-smie--closure-signature-p)))
@@ -329,11 +332,13 @@
           "case-;" ";"))
 
      ((eq (char-before) ?\{) (backward-char 1)
-      (if (save-excursion (forward-comment (- 1)) (eq (char-before) ?:))
+      (if (save-excursion (forward-comment (- 1))
+                          (or (looking-back "(\\|:" 1)
+                              (looking-back "^\s*\\..*" (line-beginning-position))))
           "closure-{" "{"))
 
      ((and (eq (char-before) ?\})
-           (save-excursion (forward-comment 1) (looking-at ")\\|,")))
+           (save-excursion (forward-comment 1) (looking-at ")\\|,\\|\\.")))
       (backward-char 1) "closure-}")
      ((eq (char-before) ?\}) (backward-char 1) "}")
 
@@ -436,7 +441,7 @@
            (smie-rule-parent))))
 
     ;; Closure indentation
-    (`(:after . "closure-{") swift-indent-offset)
+    (`(:before . "closure-{") (smie-rule-parent))
     (`(:before . "closure-in") (smie-rule-parent swift-indent-offset))
 
     (`(:before . ":")

@@ -2093,12 +2093,12 @@ func foo() {
 
 (check-indentation block-inside-parenthesis/3
   "
-\({
+({
 |a
 })
 " "
-\({
-     |a
+({
+    |a
 })
 ")
 
@@ -2390,20 +2390,24 @@ foo.bar(10,
 
 (check-indentation anonymous-function-as-a-argument/11
                    "
-UIView.transitionWithView(animations: { self!.imageView.image = image },
+UIView.transitionWithView(foo,
+                          animations: { self!.imageView.image = image },
                                         |completion: nil)
 " "
-UIView.transitionWithView(animations: { self!.imageView.image = image },
+UIView.transitionWithView(foo,
+                          animations: { self!.imageView.image = image },
                           |completion: nil)
 ")
 
 (check-indentation anonymous-function-as-a-argument/12
                    "
-UIView.transitionWithView(animations: {
+UIView.transitionWithView(foo,
+                          animations: {
                               self.imageView.image = image
                               |}, completion: nil)
 " "
-UIView.transitionWithView(animations: {
+UIView.transitionWithView(foo,
+                          animations: {
                               self.imageView.image = image
                           |}, completion: nil)
 ")
@@ -2432,6 +2436,34 @@ a(){
     b,c in
     |println(c)
 }
+")
+
+(check-indentation trailing-closure/3
+                   "
+let foo = results
+          .map { YASnippet(item: $0) }
+     |.bar
+" "
+let foo = results
+          .map { YASnippet(item: $0) }
+          |.bar
+")
+
+(check-indentation trailing-closure/4
+                   "
+let foo = results
+          .map {
+              YASnippet(item: $0)
+              bar
+          }
+               |.bar
+" "
+let foo = results
+          .map {
+              YASnippet(item: $0)
+              bar
+          }
+          |.bar
 ")
 
 (check-indentation indents-expression-with-optional-type/1
