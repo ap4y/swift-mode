@@ -1739,6 +1739,28 @@ let foo
 |(result, error) = responseSerializer.serializeResponse()
 ")
 
+(check-indentation indents-multiline-expressions/26
+                   "
+foo =
+|bar
+" "
+foo =
+  |bar
+")
+
+(check-indentation indents-multiline-expressions/27
+                   "
+func foo() {
+    foo =
+    |bar
+}
+" "
+func foo() {
+    foo =
+      |bar
+}
+")
+
 (check-indentation indents-long-parameters/1
                    "
 func foo() {

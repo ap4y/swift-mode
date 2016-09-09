@@ -476,6 +476,12 @@
      (if (smie-rule-parent-p "#if" "#else" "#elseif")
          (smie-rule-parent)))
 
+    ;; Multiline assignment
+    (`(:after . "=")
+     (if (and (smie-rule-hanging-p)
+              (not (smie-rule-parent-p "var" "let")))
+         swift-indent-multiline-statement-offset))
+
     ;; Apply swift-indent-multiline-statement-offset if
     ;; operator is the last symbol on the line
     (`(:after . ,(pred (lambda (token)
