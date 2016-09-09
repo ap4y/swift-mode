@@ -230,6 +230,8 @@ test will fail."
 (check-face error-handling/has-keyword-face/7 font-lock-keyword-face "{{defer}} { close(file) }")
 (check-face error-handling/has-keyword-face/8 font-lock-keyword-face "func vend(itemNamed name: String) {{rethrows}}")
 
+(check-face selector-expression/has-keyword-face/1 font-lock-keyword-face "{{#selector}}(Foo.bar(_:))")
+
 (provide 'font-lock-tests)
 
 ;;; font-lock-tests.el ends here
