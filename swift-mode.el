@@ -245,6 +245,18 @@
           (and (equal tok "->")
                (equal (smie-default-forward-token) "in")))))
 
+(defvar swift-smie--clousure-exclude-keywords-regexp
+  "\\(if\\|for\\|while\\|do\\|catch\\|func\\|switch\\).*")
+
+(defun swift-smie--open-closure-brace-signature-p ()
+  (or (looking-back "(\\|:" 1)
+      (looking-back "^\s*\\..*" (line-beginning-position))
+      (and (eq (char-before) ?\))
+           (backward-list)
+           (not (looking-back swift-smie--clousure-exclude-keywords-regexp
+                              (line-beginning-position))))
+      ))
+
 (defun swift-smie--forward-token ()
   (skip-chars-forward " \t")
   (cond
@@ -259,14 +271,14 @@
     (cond
      ((and (looking-at "{")
            (save-excursion (forward-comment (- 1))
-                           (or (looking-back "(\\|:" 1)
-                               (looking-back "^\s*\\..*" (line-beginning-position)))))
+                           (swift-smie--open-closure-brace-signature-p)))
       (forward-char 1) "closure-{")
      ((looking-at "{") (forward-char 1) "{")
 
      ((looking-at "}") (forward-char 1)
-      (if (save-excursion  (forward-comment 1)
-                           (looking-at ")\\|,\\|\\.")) "closure-}" "}"))
+      (if (save-excursion (backward-list) (forward-comment (- 1))
+                          (swift-smie--open-closure-brace-signature-p))
+          "closure-}" "}"))
 
      ((and (looking-at "(")
            (save-excursion (forward-list 1) (swift-smie--closure-signature-p)))
@@ -333,12 +345,12 @@
 
      ((eq (char-before) ?\{) (backward-char 1)
       (if (save-excursion (forward-comment (- 1))
-                          (or (looking-back "(\\|:" 1)
-                              (looking-back "^\s*\\..*" (line-beginning-position))))
+                          (swift-smie--open-closure-brace-signature-p))
           "closure-{" "{"))
 
      ((and (eq (char-before) ?\})
-           (save-excursion (forward-comment 1) (looking-at ")\\|,\\|\\.")))
+           (save-excursion (backward-list) (forward-comment (- 1))
+                           (swift-smie--open-closure-brace-signature-p)))
       (backward-char 1) "closure-}")
      ((eq (char-before) ?\}) (backward-char 1) "}")
 

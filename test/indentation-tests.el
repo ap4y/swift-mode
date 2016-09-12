@@ -656,6 +656,41 @@ switch true {
 "
 ((swift-indent-switch-case-offset 2)))
 
+(check-indentation indents-case-statements-with-closure/1
+  "
+switch foo {
+case bar:
+    contextUpdateBlocks.append() {
+        self.collectionView.insertItemsAtIndexPaths([newIndexPath!])
+|}
+default:
+    break
+}
+" "
+switch foo {
+case bar:
+    contextUpdateBlocks.append() {
+        self.collectionView.insertItemsAtIndexPaths([newIndexPath!])
+    |}
+default:
+    break
+}
+")
+
+(check-indentation indents-case-statements-with-closure/2
+                   "
+private func download(list: NSMutableOrderedSet) {
+    session.dataTaskWithURL(imageUrl!) { (data, _, _) in
+        dispatch_semaphore_signal(semaphore)
+|}.resume()
+}
+" "
+private func download(list: NSMutableOrderedSet) {
+    session.dataTaskWithURL(imageUrl!) { (data, _, _) in
+        dispatch_semaphore_signal(semaphore)
+    |}.resume()
+}
+")
 
 (check-indentation indents-case-statements-in-enum/1
   "
