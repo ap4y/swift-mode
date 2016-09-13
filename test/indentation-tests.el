@@ -1329,6 +1329,32 @@ protocol Foo {
 }
 ")
 
+(check-indentation indents-protocol-declaration/5
+                   "
+protocol Cancelable: class {
+    func expandCancelView()
+         |func hideCancelView()
+}
+" "
+protocol Cancelable: class {
+    func expandCancelView()
+    |func hideCancelView()
+}
+")
+
+(check-indentation indents-protocol-declaration/6
+                   "
+protocol Cancelable: class {
+    func expandCancelView()
+}
+         |let foo = bar
+" "
+protocol Cancelable: class {
+    func expandCancelView()
+}
+|let foo = bar
+")
+
 (check-indentation indents-declaration/1
   "
 var foo = bar + baz

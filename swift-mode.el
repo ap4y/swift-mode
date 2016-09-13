@@ -322,8 +322,10 @@
                 "case" "ecase"))
 
            ((equal tok "class")
-            (if (looking-at "[[:space:]]*func")
-                "f-class" "class"))
+            (cond
+             ((looking-at "[[:space:]]*func") "f-class")
+             ((looking-back ":[[:space:]]*" 1 t) "p-class")
+             (t "class")))
 
            ((equal tok "in")
             (if (looking-at "[[:space:]]*\\(\/\/.*\\)*\n")
@@ -400,8 +402,10 @@
                 "case" "ecase"))
 
            ((equal tok "class")
-            (if (looking-at "class[[:space:]]*func")
-                "f-class" "class"))
+            (cond
+             ((looking-at "[[:space:]]*func") "f-class")
+             ((looking-back ":[[:space:]]*" 1 t) "p-class")
+             (t "class")))
 
            ((equal tok "in")
             (if (looking-at "in[[:space:]]*\\(\/\/.*\\)*\n")
@@ -474,9 +478,12 @@
            (+ swift-indent-offset swift-indent-multiline-statement-offset)
          swift-indent-multiline-statement-offset)))
 
-    ;; Closure with return type bound to type or variable
     (`(:before . ";")
-     (if (smie-rule-parent-p "->") (smie-rule-parent)))
+     (cond
+      ;; Closure with return type bound to type or variable
+      ((smie-rule-parent-p "->") (smie-rule-parent))
+      ;; func declarations without body in protcol
+      ((smie-rule-parent-p "func") 0)))
 
     ;; return type at the beginning of the line
     (`(:before . "->")
