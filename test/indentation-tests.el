@@ -2824,6 +2824,30 @@ static var applicationDocumentsDirectory: URL = {
 |foo
 ")
 
+(check-indentation indents-backtick-keyword/1
+                   "
+enum UITableViewCellStyle : Int {
+    case `default`
+|case value1
+}
+" "
+enum UITableViewCellStyle : Int {
+    case `default`
+    |case value1
+}
+")
+
+(check-indentation indents-backtick-keyword/2
+                   "
+func `default`(for: foo, in: bar) {
+|foo
+}
+" "
+func `default`(for: foo, in: bar) {
+    |foo
+}
+")
+
 (provide 'indentation-tests)
 
 ;;; indentation-tests.el ends here

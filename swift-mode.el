@@ -835,6 +835,7 @@ You can send text to the REPL process from other buffers containing source.
 
     ;; Strings
     (modify-syntax-entry ?\" "\"" table)
+    (modify-syntax-entry ?\` "\"" table)
     (modify-syntax-entry ?\\ "\\" table)
 
     ;; Additional symbols
