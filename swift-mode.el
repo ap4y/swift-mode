@@ -331,6 +331,13 @@
             (if (looking-at "[[:space:]]*\\(\/\/.*\\)*\n")
                 "closure-in" "in"))
 
+           ((> (length tok) 1)
+            (save-excursion
+              (smie-default-backward-token)
+              (if (eq (char-before) ?\.)
+                  (concat "ma-" tok)
+                tok)))
+
            (t tok))))
      ))))
 
@@ -410,6 +417,11 @@
            ((equal tok "in")
             (if (looking-at "in[[:space:]]*\\(\/\/.*\\)*\n")
                 "closure-in" "in"))
+
+           ((> (length tok) )
+            (if (eq (char-before) ?\.)
+                (concat "ma-" tok)
+              tok))
 
            (t tok))))
      )))

@@ -2796,6 +2796,34 @@ extension Bird where Self: Flyable {
 }
 ")
 
+(check-indentation indents-keyword-like-expressions/1
+                   "
+static var applicationDocumentsDirectory: URL = {
+    let urls = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)
+       |return urls[urls.count-1]
+}()
+" "
+static var applicationDocumentsDirectory: URL = {
+    let urls = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)
+    |return urls[urls.count-1]
+}()
+")
+
+(check-indentation indents-keyword-like-expressions/2
+                   "
+static var applicationDocumentsDirectory: URL = {
+    let urls = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)
+    return urls[urls.count-1]
+}()
+   |foo
+" "
+static var applicationDocumentsDirectory: URL = {
+    let urls = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)
+    return urls[urls.count-1]
+}()
+|foo
+")
+
 (provide 'indentation-tests)
 
 ;;; indentation-tests.el ends here
