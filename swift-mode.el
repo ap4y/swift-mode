@@ -608,6 +608,13 @@
     (,(rx bow upper (* word) eow)
      0 font-lock-type-face)
 
+    ;; Enum member access
+    ;;
+    ;; Any token beginning with standalone dot is highlighted as a
+    ;; type.
+    (,(rx space "." (group bow (* word) eow))
+     1 font-lock-type-face)
+
     ;; Function names
     ;;
     ;; Any token beginning after `func' is highlighted as a function name.
