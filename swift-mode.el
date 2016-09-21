@@ -543,8 +543,7 @@
 (defvar swift-mode--statement-keywords
   '("break" "case" "continue" "default" "do" "else" "fallthrough"
     "if" "in" "for" "return" "switch" "where" "repeat" "while" "guard"
-    "as" "is" "#if" "#elseif" "#else" "#endif" "throws" "throw" "try"
-    "catch" "defer" "indirect" "#available" "rethrows" "#selector"))
+    "as" "is" "throws" "throw" "try" "catch" "defer" "indirect" "rethrows"))
 
 (defvar swift-mode--contextual-keywords
   '("associativity" "didSet" "get" "infix" "inout" "left" "mutating" "none"
@@ -577,13 +576,22 @@
     ;;
     ;; Swift allows reserved words to be used as identifiers when enclosed
     ;; with backticks, in which case they should be highlighted as
-    ;; identifiers, not keywords.
+    ;; identifiers, not keywords. Swift 2.3 allows keywords to be used
+    ;; as argument labels without backticks, swift 3 similar rules to
+    ;; member access
     (,(rx-to-string
-       `(and (or bol (not (any "`"))) bow
+       `(and (or bol (not (any "`" "."))) bow
              (group (or ,@swift-mode--keywords))
-             eow)
+             eow
+             (or space eol "?" "!" "." (+ ":" eol) "[^:]"))
        t)
      1 font-lock-keyword-face)
+
+    ;; Kyywords with number sign
+    (,(rx-to-string
+       `(and bow "#" (* word) eow)
+       t)
+     0 font-lock-keyword-face)
 
     ;; Attributes
     ;;

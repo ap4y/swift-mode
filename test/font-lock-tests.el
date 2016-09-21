@@ -232,6 +232,14 @@ test will fail."
 
 (check-face selector-expression/has-keyword-face/1 font-lock-keyword-face "{{#selector}}(Foo.bar(_:))")
 
+(check-face case-expressions/default-has-keyword-face/1 font-lock-keyword-face "{{default}}:")
+
+(check-face keyword-like-expressions/has-default-face/1 nil "FileManager.{{default}}.urls(for: .documentDirectory, in: .userDomainMask)")
+(check-face keyword-like-expressions/has-default-face/2 nil "FileManager.default.urls(for: .documentDirectory, {{in}}: .userDomainMask)")
+(check-face keyword-like-expressions/has-default-face/3 nil "FileManager.default.urls({{for}}: .documentDirectory, in: .userDomainMask)")
+(check-face keyword-like-expressions/has-default-face/4 nil "func `default`({{for}}: foo, in: bar)")
+(check-face keyword-like-expressions/has-default-face/5 nil "func `default`(for: foo, {{in}}: bar)")
+
 (provide 'font-lock-tests)
 
 ;;; font-lock-tests.el ends here
