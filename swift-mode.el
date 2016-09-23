@@ -336,7 +336,7 @@
             (save-excursion
               (smie-default-backward-token)
               (if (or (eq (char-before) ?\.)
-                      (looking-at (concat tok ".*?:\s*[[:word:]]+.*?,")))
+                      (looking-at (concat tok "\s*[[:word:]]*:\s*[[:word:]]+.*?,")))
                   (concat "ma-" tok)
                 tok)))
 
@@ -423,7 +423,7 @@
            ;; Alter token for member access and argument labels with keywords
            ((member tok swift-mode--keywords)
             (if (or (eq (char-before) ?\.)
-                    (looking-at (concat tok ".*?:\s*[[:word:]]+.*?,")))
+                    (looking-at (concat tok "\s*[[:word:]]*:\s*[[:word:]]+.*?,")))
                 (concat "ma-" tok)
               tok))
 

@@ -1581,6 +1581,21 @@ class Foo {
 }
 ")
 
+(check-indentation indents-expressions/3
+                   "
+super.init(success: { (json) in
+    if let imageResponse = JSONMapper.imageResponse(track, json: object, context: context) {
+    |foo
+    }
+}, failure: failure)
+" "
+super.init(success: { (json) in
+    if let imageResponse = JSONMapper.imageResponse(track, json: object, context: context) {
+        |foo
+    }
+}, failure: failure)
+")
+
 (check-indentation indents-multiline-expressions/1
 "
 Foo.bar([foo: bar,
