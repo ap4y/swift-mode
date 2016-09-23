@@ -1277,6 +1277,40 @@ public func foo()
 }
 ")
 
+(check-indentation indents-func-declaration/15
+                   "
+func controller(_ controller: NSFetchedResultsController<NSFetchRequestResult>,
+                   |for type: NSFetchedResultsChangeType,
+                didChange anObject: Any) {
+
+    foo
+}
+" "
+func controller(_ controller: NSFetchedResultsController<NSFetchRequestResult>,
+                |for type: NSFetchedResultsChangeType,
+                didChange anObject: Any) {
+
+    foo
+}
+")
+
+(check-indentation indents-func-declaration/16
+                   "
+func controller(_ controller: NSFetchedResultsController<NSFetchRequestResult>,
+                for type: NSFetchedResultsChangeType,
+                didChange anObject: Any) {
+
+|foo
+}
+" "
+func controller(_ controller: NSFetchedResultsController<NSFetchRequestResult>,
+                for type: NSFetchedResultsChangeType,
+                didChange anObject: Any) {
+
+    |foo
+}
+")
+
 (check-indentation indents-protocol-declaration/1
                    "
 protocol Foo {

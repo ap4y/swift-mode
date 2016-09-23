@@ -298,7 +298,7 @@
      ((looking-at "<") (forward-char 1)
       (if (looking-at "[[:upper:]]") "<T" "<"))
 
-     ((looking-at ">[?!]?")
+     ((looking-at ">[?!,]?")
       (goto-char (match-end 0))
       (if (looking-back "[[:space:]]>" 2 t) ">" "T>"))
 
@@ -385,7 +385,7 @@
 
      ((eq (char-before) ?<) (backward-char 1)
       (if (looking-at "<[[:upper:]]") "<T" "<"))
-     ((looking-back ">[?!]?" (- (point) 2) t)
+     ((looking-back ">[?!,]?" (- (point) 2) t)
       (goto-char (match-beginning 0))
       (if (looking-back "[[:space:]]" 1 t) ">" "T>"))
 
@@ -471,6 +471,9 @@
          (if (smie-rule-parent-p "func")
              (smie-rule-parent (- swift-indent-offset))
            (smie-rule-parent))))
+
+    (`(:after . "T>") (smie-rule-parent))
+    (`(:before . "<T") (smie-rule-parent))
 
     ;; Closure indentation
     (`(:before . "closure-{") (smie-rule-parent))
