@@ -472,6 +472,12 @@
              (smie-rule-parent (- swift-indent-offset))
            (smie-rule-parent))))
 
+    ;; Multiple let, var optional binding
+    (`(:before . ,(or "var" "let"))
+     (if (smie-rule-parent-p "var" "let")
+         (smie-rule-parent)))
+
+    ;; Generic Type
     (`(:after . "T>") (smie-rule-parent))
     (`(:before . "<T") (smie-rule-parent))
 

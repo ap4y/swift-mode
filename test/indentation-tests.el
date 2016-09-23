@@ -2893,6 +2893,36 @@ func `default`(for: foo, in: bar) {
 }
 ")
 
+(check-indentation indents-multiple-optinal-binding/1
+                   "
+guard let url = json[\"url\"] as? String,
+   |let thumbUrl = json[\"thumbnail\"] as? String,
+      let height = json[\"height\"] as? Int else {
+    return nil
+}
+" "
+guard let url = json[\"url\"] as? String,
+      |let thumbUrl = json[\"thumbnail\"] as? String,
+      let height = json[\"height\"] as? Int else {
+    return nil
+}
+")
+
+(check-indentation indents-multiple-optinal-binding/2
+                   "
+guard let url = json[\"url\"] as? String,
+      let thumbUrl = json[\"thumbnail\"] as? String,
+   |let height = json[\"height\"] as? Int else {
+    return nil
+}
+" "
+guard let url = json[\"url\"] as? String,
+      let thumbUrl = json[\"thumbnail\"] as? String,
+      |let height = json[\"height\"] as? Int else {
+    return nil
+}
+")
+
 (provide 'indentation-tests)
 
 ;;; indentation-tests.el ends here
