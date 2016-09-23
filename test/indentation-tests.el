@@ -2824,6 +2824,17 @@ static var applicationDocumentsDirectory: URL = {
 |foo
 ")
 
+(check-indentation indents-keyword-like-expressions/3
+                   "
+func controller(for type: NSFetchedResultsChangeType,
+|newIndexPath: IndexPath?) {
+}
+" "
+func controller(for type: NSFetchedResultsChangeType,
+                |newIndexPath: IndexPath?) {
+}
+")
+
 (check-indentation indents-backtick-keyword/1
                    "
 enum UITableViewCellStyle : Int {

@@ -331,10 +331,12 @@
             (if (looking-at "[[:space:]]*\\(\/\/.*\\)*\n")
                 "closure-in" "in"))
 
-           ((> (length tok) 1)
+           ;; Alter token for member access and argument labels with keywords
+           ((member tok swift-mode--keywords)
             (save-excursion
               (smie-default-backward-token)
-              (if (eq (char-before) ?\.)
+              (if (or (eq (char-before) ?\.)
+                      (looking-at (concat tok ".*?:\s*[[:word:]]+.*?,")))
                   (concat "ma-" tok)
                 tok)))
 
@@ -418,8 +420,10 @@
             (if (looking-at "in[[:space:]]*\\(\/\/.*\\)*\n")
                 "closure-in" "in"))
 
-           ((> (length tok) )
-            (if (eq (char-before) ?\.)
+           ;; Alter token for member access and argument labels with keywords
+           ((member tok swift-mode--keywords)
+            (if (or (eq (char-before) ?\.)
+                    (looking-at (concat tok ".*?:\s*[[:word:]]+.*?,")))
                 (concat "ma-" tok)
               tok))
 
