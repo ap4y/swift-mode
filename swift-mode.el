@@ -585,6 +585,11 @@
 
 (defvar swift-font-lock-keywords
   `(
+    ;; (concat tok "\s*[[:word:]]*:\s*[[:word:]]+.*?,")
+    ;; Argument labels
+    (,"\\<\\([[:word:]]+\\)\\>\s*[[:word:]]*:.*?[,)]"
+     1 font-lock-constant-face)
+
     ;; Keywords
     ;;
     ;; Swift allows reserved words to be used as identifiers when enclosed
@@ -595,12 +600,11 @@
     (,(rx-to-string
        `(and (or bol (not (any "`" "."))) bow
              (group (or ,@swift-mode--keywords))
-             eow
-             (or space eol "?" "!" "." (+ ":" eol) "[^:]"))
+             eow)
        t)
      1 font-lock-keyword-face)
 
-    ;; Kyywords with number sign
+    ;; Keywords with number sign
     (,(rx-to-string
        `(and bow "#" (* word) eow)
        t)

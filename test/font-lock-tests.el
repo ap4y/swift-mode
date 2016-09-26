@@ -234,13 +234,23 @@ test will fail."
 
 (check-face selector-expression/has-keyword-face/1 font-lock-keyword-face "{{#selector}}(Foo.bar(_:))")
 
-(check-face case-expressions/default-has-keyword-face/1 font-lock-keyword-face "{{default}}:")
+(check-face switch-expressions/switch-has-keyword-face/1 font-lock-keyword-face "{{switch}}(type) {")
+(check-face switch-expressions/default-has-keyword-face/1 font-lock-keyword-face "{{default}}:")
 
-(check-face keyword-like-expressions/has-default-face/1 nil "FileManager.{{default}}.urls(for: .documentDirectory, in: .userDomainMask)")
-(check-face keyword-like-expressions/has-default-face/2 nil "FileManager.default.urls(for: .documentDirectory, {{in}}: .userDomainMask)")
-(check-face keyword-like-expressions/has-default-face/3 nil "FileManager.default.urls({{for}}: .documentDirectory, in: .userDomainMask)")
-(check-face keyword-like-expressions/has-default-face/4 nil "func `default`({{for}}: foo, in: bar)")
-(check-face keyword-like-expressions/has-default-face/5 nil "func `default`(for: foo, {{in}}: bar)")
+(check-face guard-expressions/guard-has-keyword-face/1 font-lock-keyword-face "guard {{let}} url = json[\"url\"] as? String")
+(check-face guard-expressions/let-has-keyword-face/2 font-lock-keyword-face "{{guard}} let url = json[\"url\"] as? String")
+
+(check-face argument-label/has-constant-face/1 font-lock-constant-face "func foo({{bar}}: Type)")
+(check-face argument-label/has-constant-face/2 font-lock-constant-face "func foo({{bar}} baz: Type)")
+(check-face argument-label/has-constant-face/3 font-lock-constant-face "func foo({{_}} baz: Type)")
+(check-face argument-label/variable-has-default-face/1 nil "func foo(bar {{baz}}: Type)")
+
+(check-face keyword-like-expressions/has-constant-face/1 nil "FileManager.{{default}}.urls(for: .documentDirectory, in: .userDomainMask)")
+(check-face keyword-like-expressions/has-constant-face/2 font-lock-constant-face "FileManager.default.urls(for: .documentDirectory, {{in}}: .userDomainMask)")
+(check-face keyword-like-expressions/has-constant-face/3 font-lock-constant-face "FileManager.default.urls({{for}}: .documentDirectory, in: .userDomainMask)")
+(check-face keyword-like-expressions/has-constant-face/4 font-lock-constant-face "func `default`({{for}}: foo, in: bar)")
+(check-face keyword-like-expressions/has-constant-face/5 font-lock-constant-face "func `default`(for: foo, {{in}}: bar)")
+(check-face keyword-like-expressions/has-constant-face/6 font-lock-constant-face "func controller({{for}} type: NSFetchedResultsChangeType, newIndexPath: IndexPath?) {")
 
 (provide 'font-lock-tests)
 
